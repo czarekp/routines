@@ -50,7 +50,6 @@ export function NewRoutineRoute() {
       }
       onDelete={() => router.push("/")}
       showDelete={false}
-      requireComplete
     />
   );
 }
