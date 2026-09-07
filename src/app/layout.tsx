@@ -8,6 +8,7 @@ import { I18nProvider } from "@/components/i18n-provider";
 import { MobileGate } from "@/components/mobile-gate";
 import { cn } from "@/lib/utils";
 
+import { ReactNode } from "react";
 import messages from "../../messages/pl.json";
 
 const figtreeHeading = Figtree({
@@ -26,7 +27,7 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html
       lang="en"

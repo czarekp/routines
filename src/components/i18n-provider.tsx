@@ -1,7 +1,7 @@
 "use client";
 
 import { NextIntlClientProvider } from "next-intl";
-import { createContext, useContext, useState } from "react";
+import { createContext, ReactNode, useContext, useState } from "react";
 
 import en from "../../messages/en.json";
 import pl from "../../messages/pl.json";
@@ -17,7 +17,7 @@ type LanguageContextValue = {
 
 const LanguageContext = createContext<LanguageContextValue | null>(null);
 
-export function I18nProvider({ children }: { children: React.ReactNode }) {
+export function I18nProvider({ children }: { children: ReactNode }) {
   const [locale, setLocale] = useState<Locale>("pl");
 
   return (

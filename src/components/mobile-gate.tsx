@@ -1,9 +1,9 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { useEffect } from "react";
+import { ReactNode, useEffect } from "react";
 
-export function MobileGate({ children }: { children: React.ReactNode }) {
+export function MobileGate({ children }: { children: ReactNode }) {
   const t = useTranslations();
 
   useEffect(() => {
