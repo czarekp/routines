@@ -18,7 +18,7 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 import { GripVertical, Plus, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useState } from "react";
+import { ChangeEvent, useState } from "react";
 
 import { AppBar } from "@/app/_components/app-bar";
 import { Button } from "@/components/ui/button";
@@ -241,7 +241,9 @@ function SortableStepRow({
       </Button>
       <Input
         value={step.text}
-        onChange={(event) => onChange(step.id, event.target.value)}
+        onChange={(event: ChangeEvent<HTMLInputElement>) =>
+          onChange(step.id, event.target.value)
+        }
         placeholder={placeholder}
         aria-label={stepLabel}
       />

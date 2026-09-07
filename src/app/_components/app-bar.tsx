@@ -4,6 +4,7 @@ import { ArrowLeft } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
+import { ReactNode } from "react";
 
 export function AppBar({
   title,
@@ -12,7 +13,7 @@ export function AppBar({
 }: {
   title: string;
   onBack: () => void;
-  action?: React.ReactNode;
+  action?: ReactNode;
 }) {
   const t = useTranslations();
 
