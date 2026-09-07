@@ -4,6 +4,62 @@ const STORAGE_KEY = "routines-data";
 
 const emptyData: AppData = { routines: [], state: {} };
 
+// --- Central store -----------------------------------------------------------
+// localStorage is the single source of truth, but React screens need to react to
+// mutations that happen on other screens (e.g. checking a step in the detail view
+// should update the counter on the list). We expose a tiny pub/sub with cached
+// snapshots so components can subscribe via `useSyncExternalStore`.
+const listeners = new Set<() => void>();
+const serverRoutines: Routine[] = [];
+const serverState: RoutineState = {};
+
+let routinesSnapshot: Routine[] = serverRoutines;
+let stateSnapshot: RoutineState = serverState;
+let snapshotStale = true;
+
+function refreshSnapshots(): void {
+  const normalized = normalizeState(readData());
+  routinesSnapshot = withOrderedRoutines(normalized.routines);
+  stateSnapshot = normalized.state;
+  snapshotStale = false;
+}
+
+function emitChange(): void {
+  snapshotStale = true;
+  for (const listener of listeners) {
+    listener();
+  }
+}
+
+export function subscribe(listener: () => void): () => void {
+  listeners.add(listener);
+  return () => {
+    listeners.delete(listener);
+  };
+}
+
+export function getRoutinesSnapshot(): Routine[] {
+  if (snapshotStale) {
+    refreshSnapshots();
+  }
+  return routinesSnapshot;
+}
+
+export function getStateSnapshot(): RoutineState {
+  if (snapshotStale) {
+    refreshSnapshots();
+  }
+  return stateSnapshot;
+}
+
+export function getServerRoutinesSnapshot(): Routine[] {
+  return serverRoutines;
+}
+
+export function getServerStateSnapshot(): RoutineState {
+  return serverState;
+}
+
 function today(): string {
   const date = new Date();
   const year = date.getFullYear();
@@ -88,6 +144,7 @@ export function saveRoutine(routine: Routine): void {
   }
 
   writeData({ ...data, routines: withOrderedRoutines(routines) });
+  emitChange();
 }
 
 export function deleteRoutine(routineId: string): void {
@@ -98,6 +155,7 @@ export function deleteRoutine(routineId: string): void {
   const state = { ...data.state };
   delete state[routineId];
   writeData({ routines, state });
+  emitChange();
 }
 
 export function toggleStep(routineId: string, stepId: string): RoutineState {
@@ -116,6 +174,7 @@ export function toggleStep(routineId: string, stepId: string): RoutineState {
   };
 
   writeData({ ...data, state });
+  emitChange();
   return state;
 }
 
@@ -126,6 +185,7 @@ export function resetRoutine(routineId: string): RoutineState {
     [routineId]: { checkedStepIds: [], lastResetDate: today() },
   };
   writeData({ ...data, state });
+  emitChange();
   return state;
 }
 
@@ -139,5 +199,6 @@ export function resetAll(): RoutineState {
     ]),
   );
   writeData({ ...data, state });
+  emitChange();
   return state;
 }
