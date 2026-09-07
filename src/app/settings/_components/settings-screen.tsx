@@ -4,7 +4,13 @@ import { useLocale, useTranslations } from "next-intl";
 
 import { AppBar } from "@/app/_components/app-bar";
 import { useI18n } from "@/components/i18n-provider";
-import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export function SettingsPanel() {
   const t = useTranslations();
@@ -18,28 +24,20 @@ export function SettingsPanel() {
           <strong>{t("language")}</strong>
           <span>{language === "pl" ? "Polski" : "English"}</span>
         </div>
-        <div
-          className="language-options"
-          role="group"
-          aria-label={t("language")}
+        <Select
+          value={language}
+          onValueChange={(value) => setLocale(value as "pl" | "en")}
         >
-          <Button
-            className="language-option"
-            variant={language === "pl" ? "default" : "outline"}
-            onClick={() => setLocale("pl")}
-            aria-pressed={language === "pl"}
-          >
-            Polski
-          </Button>
-          <Button
-            className="language-option"
-            variant={language === "en" ? "default" : "outline"}
-            onClick={() => setLocale("en")}
-            aria-pressed={language === "en"}
-          >
-            English
-          </Button>
-        </div>
+          <SelectTrigger className="language-select" aria-label={t("language")}>
+            <SelectValue>
+              {(value) => (value === "en" ? "English" : "Polski")}
+            </SelectValue>
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="pl">Polski</SelectItem>
+            <SelectItem value="en">English</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
     </section>
   );

@@ -126,12 +126,16 @@ input {
 
 .app-header,
 .sub-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
   display: flex;
   height: 72px;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
   padding: 10px 0;
+  background: var(--background);
 }
 
 .fixed-add-button {
@@ -196,6 +200,12 @@ input {
   padding-inline: 18px;
   border-radius: 10px;
   box-shadow: 0 8px 22px oklch(0.2 0.02 45 / 18%);
+}
+
+.routine-reset-button:disabled {
+  background: var(--muted);
+  color: var(--muted-foreground);
+  opacity: 1;
 }
 
 .routine-progress-ring {
@@ -386,14 +396,11 @@ input {
   font-size: 13px;
 }
 
-.language-options {
-  display: grid;
-  gap: 8px;
-}
-
-.language-option {
-  min-width: 96px;
-  width: 100%;
+.language-select {
+  width: auto;
+  min-width: 104px;
+  height: 34px;
+  font-size: 14px;
 }
 
 .routine-list,

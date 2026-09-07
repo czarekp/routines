@@ -2,25 +2,25 @@
 
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
-import { startTransition, useEffect, useState } from "react";
+import { useState } from "react";
 
 import { RoutineList } from "@/app/_components/routines-app-list";
 import { Button } from "@/components/ui/button";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { getRoutines, getState, resetAll } from "@/lib/storage";
-import type { Routine, RoutineProgress } from "@/types";
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
+import { resetAll } from "@/lib/storage";
+import { useRoutines, useRoutineState } from "@/lib/use-store";
 
 export function RoutinesApp() {
   const router = useRouter();
-  const [routines, setRoutines] = useState<Routine[]>([]);
-  const [state, setState] = useState<Record<string, RoutineProgress>>({});
+  const routines = useRoutines();
+  const state = useRoutineState();
   const [resetAllOpen, setResetAllOpen] = useState(false);
   const t = useTranslations();
   const hasCheckedSteps = routines.some((routine) => {
@@ -28,19 +28,12 @@ export function RoutinesApp() {
     return routine.steps.some((step) => checkedStepIds.includes(step.id));
   });
 
-  useEffect(() => {
-    startTransition(() => {
-      setRoutines(getRoutines());
-      setState(getState());
-    });
-  }, []);
-
   function openNewRoutine() {
     router.push("/new");
   }
 
   function handleResetAll() {
-    setState(resetAll());
+    resetAll();
     setResetAllOpen(false);
   }
 
@@ -56,22 +49,22 @@ export function RoutinesApp() {
         }
         onResetAll={() => setResetAllOpen(true)}
       />
-      <Dialog open={resetAllOpen} onOpenChange={setResetAllOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{t("resetAllTitle")}</DialogTitle>
-            <DialogDescription>{t("resetAllDescription")}</DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
+      <Sheet open={resetAllOpen} onOpenChange={setResetAllOpen}>
+        <SheetContent side="bottom" className="delete-sheet">
+          <SheetHeader>
+            <SheetTitle>{t("resetAllTitle")}</SheetTitle>
+            <SheetDescription>{t("resetAllDescription")}</SheetDescription>
+          </SheetHeader>
+          <SheetFooter>
             <Button variant="outline" onClick={() => setResetAllOpen(false)}>
               {t("cancel")}
             </Button>
             <Button variant="destructive" onClick={handleResetAll}>
               {t("reset")}
             </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+          </SheetFooter>
+        </SheetContent>
+      </Sheet>
     </>
   );
 }
