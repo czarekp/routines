@@ -18,7 +18,7 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 import { GripVertical, Plus, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { ChangeEvent, useState } from "react";
+import { ChangeEvent, useEffect, useRef, useState } from "react";
 
 import { AppBar } from "@/app/_components/app-bar";
 import { Button } from "@/components/ui/button";
@@ -42,7 +42,6 @@ export function RoutineEdit({
   onDelete,
   onComplete,
   showDelete = true,
-  requireComplete = false,
 }: {
   routine: Routine;
   title: string;
@@ -51,12 +50,12 @@ export function RoutineEdit({
   onDelete: () => void;
   onComplete?: () => void;
   showDelete?: boolean;
-  requireComplete?: boolean;
 }) {
   const t = useTranslations();
   const [name, setName] = useState(routine.name);
   const [steps, setSteps] = useState(sortSteps(routine.steps));
   const [deleteOpen, setDeleteOpen] = useState(false);
+  const [focusStepId, setFocusStepId] = useState<string | null>(null);
   const canSave =
     name.trim().length > 0 && steps.some((step) => step.text.trim().length > 0);
   const sensors = useSensors(
@@ -73,10 +72,12 @@ export function RoutineEdit({
   }
 
   function addStep() {
+    const id = createId();
     setSteps((current) => [
       ...current,
-      { id: createId(), text: "", order: current.length },
+      { id, text: "", order: current.length },
     ]);
+    setFocusStepId(id);
   }
 
   function removeStep(stepId: string) {
@@ -148,6 +149,7 @@ export function RoutineEdit({
                   stepLabel={t("stepNumber", { number: index + 1 })}
                   dragLabel={t("dragStep")}
                   deleteLabel={t("deleteStep")}
+                  autoFocus={step.id === focusStepId}
                   onChange={updateStep}
                   onDelete={removeStep}
                 />
@@ -171,7 +173,7 @@ export function RoutineEdit({
       <div className="fixed-done-bar">
         <Button
           className="fixed-done-button"
-          disabled={requireComplete && !canSave}
+          disabled={!canSave}
           onClick={save}
         >
           {t("done")}
@@ -203,6 +205,7 @@ function SortableStepRow({
   stepLabel,
   dragLabel,
   deleteLabel,
+  autoFocus = false,
   onChange,
   onDelete,
 }: {
@@ -211,6 +214,7 @@ function SortableStepRow({
   stepLabel: string;
   dragLabel: string;
   deleteLabel: string;
+  autoFocus?: boolean;
   onChange: (stepId: string, text: string) => void;
   onDelete: (stepId: string) => void;
 }) {
@@ -222,6 +226,13 @@ function SortableStepRow({
     transition,
     isDragging,
   } = useSortable({ id: step.id });
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (autoFocus) {
+      inputRef.current?.focus();
+    }
+  }, [autoFocus]);
 
   return (
     <div
@@ -240,6 +251,7 @@ function SortableStepRow({
         <GripVertical aria-hidden="true" />
       </Button>
       <Input
+        ref={inputRef}
         value={step.text}
         onChange={(event: ChangeEvent<HTMLInputElement>) =>
           onChange(step.id, event.target.value)

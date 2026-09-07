@@ -69,7 +69,7 @@ export function RoutineDetail({
                   }
                 }}
               >
-                <Checkbox checked={checked} tabIndex={-1} aria-hidden="true" />
+                <Checkbox checked={checked} inert />
                 <span>{step.text}</span>
               </div>
             );
