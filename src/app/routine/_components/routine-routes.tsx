@@ -10,13 +10,12 @@ import { SettingsScreen } from "@/app/settings/_components/settings-screen";
 import { createId } from "@/lib/routine-utils";
 import {
   deleteRoutine,
-  getRoutines,
-  getState,
   resetRoutine,
   saveRoutine,
   toggleStep,
 } from "@/lib/storage";
-import type { Routine, RoutineProgress } from "@/types";
+import { useRoutines, useRoutineState } from "@/lib/use-store";
+import type { Routine } from "@/types";
 
 export function SettingsRoute() {
   const router = useRouter();
@@ -26,16 +25,19 @@ export function SettingsRoute() {
 export function NewRoutineRoute() {
   const router = useRouter();
   const t = useTranslations();
+  const routines = useRoutines();
   const [routine, setRoutine] = useState<Routine | null>(null);
 
   useEffect(() => {
     const newRoutine: Routine = {
       id: createId(),
       name: "",
-      order: getRoutines().length,
+      order: routines.length,
       steps: [],
     };
     startTransition(() => setRoutine(newRoutine));
+    // Only seed the draft once, on mount.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   if (!routine) return null;
@@ -58,30 +60,23 @@ export function RoutineDetailRoute() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const routineId = searchParams.get("id");
-  const [routine, setRoutine] = useState<Routine | null>(null);
-  const [progress, setProgress] = useState<RoutineProgress | undefined>();
-
-  useEffect(() => {
-    if (!routineId) return;
-    startTransition(() => {
-      setRoutine(getRoutines().find((item) => item.id === routineId) ?? null);
-      setProgress(getState()[routineId]);
-    });
-  }, [routineId]);
+  const routines = useRoutines();
+  const state = useRoutineState();
+  const routine = routineId
+    ? (routines.find((item) => item.id === routineId) ?? null)
+    : null;
 
   if (!routine) return null;
   return (
     <RoutineDetail
       routine={routine}
-      progress={progress}
+      progress={state[routine.id]}
       onBack={() => router.push("/")}
       onEdit={() =>
         router.push(`/routine/edit?id=${encodeURIComponent(routine.id)}`)
       }
-      onToggle={(_, stepId) =>
-        setProgress(toggleStep(routine.id, stepId)[routine.id])
-      }
-      onReset={() => setProgress(resetRoutine(routine.id)[routine.id])}
+      onToggle={(_, stepId) => toggleStep(routine.id, stepId)}
+      onReset={() => resetRoutine(routine.id)}
     />
   );
 }
@@ -91,14 +86,10 @@ export function RoutineEditRoute() {
   const t = useTranslations();
   const searchParams = useSearchParams();
   const routineId = searchParams.get("id");
-  const [routine, setRoutine] = useState<Routine | null>(null);
-
-  useEffect(() => {
-    if (!routineId) return;
-    startTransition(() =>
-      setRoutine(getRoutines().find((item) => item.id === routineId) ?? null),
-    );
-  }, [routineId]);
+  const routines = useRoutines();
+  const routine = routineId
+    ? (routines.find((item) => item.id === routineId) ?? null)
+    : null;
 
   if (!routine) return null;
   return (

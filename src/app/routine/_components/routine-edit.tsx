@@ -80,6 +80,17 @@ export function RoutineEdit({
     setFocusStepId(id);
   }
 
+  function addStepAfter(stepId: string) {
+    const id = createId();
+    setSteps((current) => {
+      const index = current.findIndex((step) => step.id === stepId);
+      const next = [...current];
+      next.splice(index + 1, 0, { id, text: "", order: 0 });
+      return next.map((step, position) => ({ ...step, order: position }));
+    });
+    setFocusStepId(id);
+  }
+
   function removeStep(stepId: string) {
     setSteps((current) =>
       current
@@ -152,6 +163,7 @@ export function RoutineEdit({
                   autoFocus={step.id === focusStepId}
                   onChange={updateStep}
                   onDelete={removeStep}
+                  onEnter={addStepAfter}
                 />
               ))}
             </div>
@@ -208,6 +220,7 @@ function SortableStepRow({
   autoFocus = false,
   onChange,
   onDelete,
+  onEnter,
 }: {
   step: RoutineStep;
   placeholder: string;
@@ -217,6 +230,7 @@ function SortableStepRow({
   autoFocus?: boolean;
   onChange: (stepId: string, text: string) => void;
   onDelete: (stepId: string) => void;
+  onEnter: (stepId: string) => void;
 }) {
   const {
     attributes,
@@ -252,10 +266,17 @@ function SortableStepRow({
       </Button>
       <Input
         ref={inputRef}
+        className="border-0 shadow-none focus-visible:border-0 focus-visible:ring-0"
         value={step.text}
         onChange={(event: ChangeEvent<HTMLInputElement>) =>
           onChange(step.id, event.target.value)
         }
+        onKeyDown={(event) => {
+          if (event.key === "Enter") {
+            event.preventDefault();
+            onEnter(step.id);
+          }
+        }}
         placeholder={placeholder}
         aria-label={stepLabel}
       />

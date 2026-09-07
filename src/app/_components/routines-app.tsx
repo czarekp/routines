@@ -2,7 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
-import { startTransition, useEffect, useState } from "react";
+import { useState } from "react";
 
 import { RoutineList } from "@/app/_components/routines-app-list";
 import { Button } from "@/components/ui/button";
@@ -14,13 +14,13 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { getRoutines, getState, resetAll } from "@/lib/storage";
-import type { Routine, RoutineProgress } from "@/types";
+import { resetAll } from "@/lib/storage";
+import { useRoutines, useRoutineState } from "@/lib/use-store";
 
 export function RoutinesApp() {
   const router = useRouter();
-  const [routines, setRoutines] = useState<Routine[]>([]);
-  const [state, setState] = useState<Record<string, RoutineProgress>>({});
+  const routines = useRoutines();
+  const state = useRoutineState();
   const [resetAllOpen, setResetAllOpen] = useState(false);
   const t = useTranslations();
   const hasCheckedSteps = routines.some((routine) => {
@@ -28,19 +28,12 @@ export function RoutinesApp() {
     return routine.steps.some((step) => checkedStepIds.includes(step.id));
   });
 
-  useEffect(() => {
-    startTransition(() => {
-      setRoutines(getRoutines());
-      setState(getState());
-    });
-  }, []);
-
   function openNewRoutine() {
     router.push("/new");
   }
 
   function handleResetAll() {
-    setState(resetAll());
+    resetAll();
     setResetAllOpen(false);
   }
 
