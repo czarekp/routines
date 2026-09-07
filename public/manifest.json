@@ -1,0 +1,18 @@
+{
+  "name": "Rutyny",
+  "short_name": "Rutyny",
+  "description": "Codzienna lista rutyn",
+  "start_url": "/routines/",
+  "scope": "/routines/",
+  "display": "standalone",
+  "background_color": "#211d1a",
+  "theme_color": "#211d1a",
+  "icons": [
+    {
+      "src": "/routines/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
