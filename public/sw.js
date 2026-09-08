@@ -1,4 +1,4 @@
-const CACHE_NAME = "routines-v2";
+const CACHE_NAME = "routines-v3";
 const APP_SHELL = ["/routines/", "/routines/manifest.json"];
 
 self.addEventListener("install", (event) => {

@@ -16,7 +16,9 @@ app works offline and keeps your routines to yourself.
 - **Reorder by dragging.** Steps move with a drag handle (touch-friendly).
 - **Progress at a glance.** A small ring shows how many steps are done.
 - **Installable.** Add it to your home screen and launch it like a native app.
-- **Polish and English.** A built-in language toggle (Polish by default).
+- **English and Polish.** A built-in language toggle (English by default); your
+  choice is remembered on the device via `localStorage`.
+- **Reorder routines.** Drag routines on the main list into the order you want.
 
 ## Tech stack
 
@@ -82,9 +84,10 @@ The app is deployed to **GitHub Pages** as a static site.
   from storage and read the target id from the `?id=` search param. Navigation is
   plain `router.push` between `/`, `/routine?id=`, `/routine/edit?id=`, `/new`, and
   `/settings`.
-- **i18n.** `next-intl`, forced to Polish server-side, plus a client pl/en toggle
-  (`src/components/i18n-provider.tsx`). Catalogs are `messages/pl.json` and
-  `messages/en.json` — keep both in sync when adding keys.
+- **i18n.** `next-intl`, rendered in English server-side, plus a client en/pl
+  toggle (`src/components/i18n-provider.tsx`) whose choice is persisted to
+  `localStorage` (`routines-locale`) and applied after mount. Catalogs are
+  `messages/en.json` and `messages/pl.json` — keep both in sync when adding keys.
 - **Mobile gate + PWA.** `src/components/mobile-gate.tsx` renders the app for
   mobile viewports (and a short "desktop not supported" message otherwise) and
   registers the service worker (`public/sw.js`).
@@ -92,4 +95,10 @@ The app is deployed to **GitHub Pages** as a static site.
 ## Product
 
 See [`PRODUCT.md`](PRODUCT.md) for the design intent: a calm, quiet checklist.
-Keep the UI restrained — warmth belongs to the coral accent alone.
+Keep the UI minimalistic — the accent is a clean, neutral white on dark surfaces.
+
+## Built with Claude
+
+This project is developed with [Claude Code](https://claude.com/claude-code),
+Anthropic's agentic coding tool. Features and refactors are implemented in
+pair-programming sessions with Claude, then reviewed and committed by a human.

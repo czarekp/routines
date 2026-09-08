@@ -27,6 +27,7 @@
   "moveUp": "Move up",
   "moveDown": "Move down",
   "dragStep": "Drag step",
+  "dragRoutine": "Reorder routine",
   "deleteStep": "Delete step",
   "addStep": "Add step",
   "deleteRoutine": "Delete routine",

@@ -27,6 +27,7 @@
   "moveUp": "Przesuń w górę",
   "moveDown": "Przesuń w dół",
   "dragStep": "Przeciągnij krok",
+  "dragRoutine": "Zmień kolejność rutyny",
   "deleteStep": "Usuń krok",
   "addStep": "Dodaj krok",
   "deleteRoutine": "Usuń rutynę",

@@ -1,12 +1,12 @@
 {
-  "name": "Rutyny",
-  "short_name": "Rutyny",
-  "description": "Codzienna lista rutyn",
+  "name": "Routines",
+  "short_name": "Routines",
+  "description": "A quiet daily checklist",
   "start_url": "/routines/",
   "scope": "/routines/",
   "display": "standalone",
-  "background_color": "#211d1a",
-  "theme_color": "#211d1a",
+  "background_color": "#1c1917",
+  "theme_color": "#1c1917",
   "icons": [
     {
       "src": "/routines/icon.svg",

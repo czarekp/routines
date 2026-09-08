@@ -18,17 +18,24 @@ export function SettingsPanel() {
   const { setLocale } = useI18n();
 
   return (
-    <section className="settings-list" aria-label={t("settings")}>
-      <div className="settings-row">
-        <div className="settings-row-copy">
-          <strong>{t("language")}</strong>
-          <span>{language === "pl" ? "Polski" : "English"}</span>
+    <section className="grid gap-2.5" aria-label={t("settings")}>
+      <div className="bg-card flex min-h-18 items-center justify-between gap-4 rounded-lg border-0 px-4 py-3.5">
+        <div className="grid gap-1.5">
+          <strong className="font-heading text-lg font-semibold">
+            {t("language")}
+          </strong>
+          <span className="text-muted-foreground text-sm">
+            {language === "pl" ? "Polski" : "English"}
+          </span>
         </div>
         <Select
           value={language}
           onValueChange={(value) => setLocale(value as "pl" | "en")}
         >
-          <SelectTrigger className="language-select" aria-label={t("language")}>
+          <SelectTrigger
+            className="h-8.5 w-auto min-w-26 text-sm"
+            aria-label={t("language")}
+          >
             <SelectValue>
               {(value) => (value === "en" ? "English" : "Polski")}
             </SelectValue>
@@ -47,7 +54,7 @@ export function SettingsScreen({ onBack }: { onBack: () => void }) {
   const t = useTranslations();
 
   return (
-    <div className="app-shell">
+    <div className="mx-auto min-h-dvh w-[min(100%,480px)] px-5 pt-5 pb-10">
       <AppBar title={t("settings")} onBack={onBack} />
       <SettingsPanel />
     </div>

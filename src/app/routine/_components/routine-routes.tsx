@@ -111,7 +111,7 @@ export function RoutineEditRoute() {
 export function MissingRoute() {
   const t = useTranslations();
   return (
-    <div className="app-shell">
+    <div className="mx-auto min-h-dvh w-[min(100%,480px)] px-5 pt-5 pb-10">
       <p>{t("routineNotFound")}</p>
     </div>
   );
