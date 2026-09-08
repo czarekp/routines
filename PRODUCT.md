@@ -10,6 +10,6 @@ web - PWA
 
 ## Design direction
 
-Quiet morning light on a kitchen counter: warm coral action color, crisp surfaces, generous touch targets, and restrained typography.
+Quiet, focused, and monochrome: a clean white action color on calm dark surfaces, crisp edges, generous touch targets, and restrained typography.
 
-The UI uses a restrained product palette. Warmth belongs to the coral accent, while light and dark surfaces remain neutral so the checklist stays calm and readable.
+The UI uses a restrained, neutral palette. The accent is a clear white that reads as the primary action, while surfaces stay neutral so the checklist remains calm and readable.
