@@ -33,7 +33,7 @@ export function RoutineDetail({
   ).length;
 
   return (
-    <div className="app-shell routine-detail-screen">
+    <div className="mx-auto min-h-dvh w-[min(100%,480px)] px-5 pt-5 pb-[calc(116px+env(safe-area-inset-bottom))]">
       <AppBar
         title={routine.name || t("unnamed")}
         onBack={onBack}
@@ -44,19 +44,22 @@ export function RoutineDetail({
             aria-label={t("editRoutine")}
             onClick={onEdit}
           >
-            <Pencil />
+            <Pencil className="size-6" />
           </Button>
         }
       />
       {routine.steps.length === 0 ? (
         <EmptySteps onEdit={onEdit} />
       ) : (
-        <section className="step-list" aria-label={t("routineSteps")}>
+        <section
+          className="grid grid-cols-[minmax(0,1fr)]"
+          aria-label={t("routineSteps")}
+        >
           {sortSteps(routine.steps).map((step) => {
             const checked = checkedStepIds.includes(step.id);
             return (
               <div
-                className={`step-row ${checked ? "step-row-checked" : ""}`}
+                className="border-border text-card-foreground active:bg-muted flex min-h-15 cursor-pointer items-center gap-3.5 border-b px-2.5 py-3 text-left transition-colors"
                 key={step.id}
                 role="checkbox"
                 aria-checked={checked}
@@ -69,16 +72,26 @@ export function RoutineDetail({
                   }
                 }}
               >
-                <Checkbox checked={checked} inert />
-                <span>{step.text}</span>
+                <Checkbox
+                  className="size-5.5 shrink-0 rounded-lg"
+                  checked={checked}
+                  inert
+                />
+                <span
+                  className={`min-w-0 flex-1 overflow-hidden text-base leading-snug text-ellipsis whitespace-nowrap ${
+                    checked ? "text-muted-foreground line-through" : ""
+                  }`}
+                >
+                  {step.text}
+                </span>
               </div>
             );
           })}
         </section>
       )}
-      <div className="routine-detail-actions">
+      <div className="pointer-events-none fixed right-[max(20px,calc((100vw-480px)/2+20px))] bottom-[calc(20px+env(safe-area-inset-bottom))] left-[max(20px,calc((100vw-480px)/2+20px))] z-20 flex items-center justify-between *:pointer-events-auto">
         <Button
-          className="routine-reset-button"
+          className="disabled:bg-muted disabled:text-muted-foreground min-h-13 rounded-lg px-4.5 shadow-[0_8px_22px_oklch(0_0_0/28%)] disabled:opacity-100"
           variant="outline"
           disabled={completed === 0}
           onClick={onReset}

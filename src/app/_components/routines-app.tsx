@@ -14,7 +14,7 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
-import { resetAll } from "@/lib/storage";
+import { reorderRoutines, resetAll } from "@/lib/storage";
 import { useRoutines, useRoutineState } from "@/lib/use-store";
 
 export function RoutinesApp() {
@@ -48,18 +48,30 @@ export function RoutinesApp() {
           router.push(`/routine?id=${encodeURIComponent(routineId)}`)
         }
         onResetAll={() => setResetAllOpen(true)}
+        onReorder={reorderRoutines}
       />
       <Sheet open={resetAllOpen} onOpenChange={setResetAllOpen}>
-        <SheetContent side="bottom" className="delete-sheet">
+        <SheetContent
+          side="bottom"
+          className="rounded-t-lg pb-[calc(16px+env(safe-area-inset-bottom))]"
+        >
           <SheetHeader>
             <SheetTitle>{t("resetAllTitle")}</SheetTitle>
             <SheetDescription>{t("resetAllDescription")}</SheetDescription>
           </SheetHeader>
           <SheetFooter>
-            <Button variant="outline" onClick={() => setResetAllOpen(false)}>
+            <Button
+              className="min-h-12.5 text-base"
+              variant="outline"
+              onClick={() => setResetAllOpen(false)}
+            >
               {t("cancel")}
             </Button>
-            <Button variant="destructive" onClick={handleResetAll}>
+            <Button
+              className="min-h-12.5 text-base"
+              variant="destructive"
+              onClick={handleResetAll}
+            >
               {t("reset")}
             </Button>
           </SheetFooter>

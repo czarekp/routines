@@ -34,6 +34,8 @@ import {
 import { createId, sortSteps } from "@/lib/routine-utils";
 import type { Routine, RoutineStep } from "@/types";
 
+const editStepButtonClass = "size-10.5 flex-none [&>svg]:size-5";
+
 export function RoutineEdit({
   routine,
   title,
@@ -125,22 +127,25 @@ export function RoutineEdit({
   }
 
   return (
-    <div className="app-shell routine-edit-screen">
+    <div className="mx-auto min-h-dvh w-[min(100%,480px)] px-5 pt-5 pb-[calc(132px+env(safe-area-inset-bottom))]">
       <AppBar title={title} onBack={onBack} />
-      <section className="edit-form">
-        <label htmlFor="routine-name">{t("routineName")}</label>
+      <section className="mb-7.5 grid gap-2.25">
+        <label htmlFor="routine-name" className="text-sm font-[650]">
+          {t("routineName")}
+        </label>
         <Input
           id="routine-name"
+          className="h-13 text-lg"
           value={name}
           onChange={(event) => setName(event.target.value)}
           placeholder={t("routineNamePlaceholder")}
           autoFocus
         />
       </section>
-      <section className="edit-steps">
-        <div className="section-heading">
-          <h2>{t("stepsTitle")}</h2>
-          <span>{steps.length}</span>
+      <section className="grid gap-2.25">
+        <div className="flex items-center justify-between">
+          <h2 className="m-0 text-sm font-[650]">{t("stepsTitle")}</h2>
+          <span className="text-muted-foreground text-sm">{steps.length}</span>
         </div>
         <DndContext
           sensors={sensors}
@@ -151,7 +156,7 @@ export function RoutineEdit({
             items={steps.map((step) => step.id)}
             strategy={verticalListSortingStrategy}
           >
-            <div className="edit-step-list">
+            <div className="grid grid-cols-[minmax(0,1fr)]">
               {steps.map((step, index) => (
                 <SortableStepRow
                   key={step.id}
@@ -169,22 +174,26 @@ export function RoutineEdit({
             </div>
           </SortableContext>
         </DndContext>
-        <Button variant="outline" className="add-step" onClick={addStep}>
+        <Button
+          variant="outline"
+          className="mt-2 min-h-12.5 w-full text-base"
+          onClick={addStep}
+        >
           <Plus /> {t("addStep")}
         </Button>
       </section>
       {showDelete && (
         <Button
           variant="destructive"
-          className="delete-routine"
+          className="mt-12 min-h-12.5 w-full text-base"
           onClick={() => setDeleteOpen(true)}
         >
           <Trash2 /> {t("deleteRoutine")}
         </Button>
       )}
-      <div className="fixed-done-bar">
+      <div className="border-border bg-background fixed right-0 bottom-0 left-0 z-20 border-t px-5 pt-3 pb-[calc(20px+env(safe-area-inset-bottom))]">
         <Button
-          className="fixed-done-button"
+          className="mx-auto flex min-h-14 w-[min(100%,440px)] rounded-lg text-base shadow-[0_8px_22px_oklch(0_0_0/28%)]"
           disabled={!canSave}
           onClick={save}
         >
@@ -192,16 +201,27 @@ export function RoutineEdit({
         </Button>
       </div>
       <Sheet open={deleteOpen} onOpenChange={setDeleteOpen}>
-        <SheetContent side="bottom" className="delete-sheet">
+        <SheetContent
+          side="bottom"
+          className="rounded-t-lg pb-[calc(16px+env(safe-area-inset-bottom))]"
+        >
           <SheetHeader>
             <SheetTitle>{t("deleteRoutineTitle")}</SheetTitle>
             <SheetDescription>{t("deleteRoutineDescription")}</SheetDescription>
           </SheetHeader>
           <SheetFooter>
-            <Button variant="outline" onClick={() => setDeleteOpen(false)}>
+            <Button
+              className="min-h-12.5 text-base"
+              variant="outline"
+              onClick={() => setDeleteOpen(false)}
+            >
               {t("cancel")}
             </Button>
-            <Button variant="destructive" onClick={onDelete}>
+            <Button
+              className="min-h-12.5 text-base"
+              variant="destructive"
+              onClick={onDelete}
+            >
               {t("deleteRoutine")}
             </Button>
           </SheetFooter>
@@ -250,12 +270,16 @@ function SortableStepRow({
 
   return (
     <div
-      className={`edit-step-row ${isDragging ? "edit-step-row-dragging" : ""}`}
+      className={`border-border flex items-center gap-2 border-b py-2.5 last:border-b-0 ${
+        isDragging
+          ? "bg-card relative z-1 shadow-[0_8px_20px_oklch(0_0_0/20%)]"
+          : ""
+      }`}
       ref={setNodeRef}
       style={{ transform: CSS.Transform.toString(transform), transition }}
     >
       <Button
-        className="drag-handle"
+        className={`${editStepButtonClass} cursor-grab touch-none active:cursor-grabbing`}
         variant="ghost"
         size="icon-sm"
         aria-label={dragLabel}
@@ -266,7 +290,7 @@ function SortableStepRow({
       </Button>
       <Input
         ref={inputRef}
-        className="border-0 shadow-none focus-visible:border-0 focus-visible:ring-0"
+        className="h-11.5 min-w-0 flex-1 border-0 text-base shadow-none focus-visible:border-0 focus-visible:ring-0"
         value={step.text}
         onChange={(event: ChangeEvent<HTMLInputElement>) =>
           onChange(step.id, event.target.value)
@@ -281,6 +305,7 @@ function SortableStepRow({
         aria-label={stepLabel}
       />
       <Button
+        className={editStepButtonClass}
         variant="ghost"
         size="icon-sm"
         aria-label={deleteLabel}

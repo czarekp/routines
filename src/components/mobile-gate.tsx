@@ -16,8 +16,13 @@ export function MobileGate({ children }: { children: ReactNode }) {
 
   return (
     <>
-      <main className="mobile-app">{children}</main>
-      <section className="desktop-message" aria-live="polite">
+      <main className="bg-background block min-h-dvh min-[481px]:hidden">
+        {children}
+      </main>
+      <section
+        className="bg-background text-muted-foreground hidden min-h-dvh place-items-center p-8 text-center min-[481px]:grid"
+        aria-live="polite"
+      >
         <p>{t("mobileOnly")}</p>
       </section>
     </>
