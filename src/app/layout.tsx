@@ -9,7 +9,7 @@ import { MobileGate } from "@/components/mobile-gate";
 import { cn } from "@/lib/utils";
 
 import { ReactNode } from "react";
-import messages from "../../messages/pl.json";
+import messages from "../../messages/en.json";
 
 const figtreeHeading = Figtree({
   subsets: ["latin"],
@@ -19,8 +19,8 @@ const figtreeHeading = Figtree({
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
 export const metadata: Metadata = {
-  title: "Rutyny",
-  description: "Codzienna lista rutyn",
+  title: "Routines",
+  description: "A quiet daily checklist",
   manifest: "/routines/manifest.json",
   icons: {
     icon: "/routines/icon.svg",
@@ -40,7 +40,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       )}
     >
       <body className="flex min-h-full flex-col">
-        <NextIntlClientProvider locale="pl" messages={messages}>
+        <NextIntlClientProvider locale="en" messages={messages}>
           <I18nProvider>
             <MobileGate>{children}</MobileGate>
           </I18nProvider>
