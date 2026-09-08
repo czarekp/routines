@@ -147,6 +147,30 @@ export function saveRoutine(routine: Routine): void {
   emitChange();
 }
 
+export function reorderRoutines(orderedIds: string[]): void {
+  const data = normalizeState(readData());
+  const byId = new Map(data.routines.map((routine) => [routine.id, routine]));
+  const reordered: Routine[] = [];
+
+  for (const id of orderedIds) {
+    const routine = byId.get(id);
+    if (routine) {
+      reordered.push(routine);
+      byId.delete(id);
+    }
+  }
+  // Preserve any routines not present in orderedIds (defensive) in their
+  // original relative order.
+  for (const routine of data.routines) {
+    if (byId.has(routine.id)) {
+      reordered.push(routine);
+    }
+  }
+
+  writeData({ ...data, routines: withOrderedRoutines(reordered) });
+  emitChange();
+}
+
 export function deleteRoutine(routineId: string): void {
   const data = normalizeState(readData());
   const routines = withOrderedRoutines(
