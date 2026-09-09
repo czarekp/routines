@@ -22,15 +22,15 @@ import { ChangeEvent, useEffect, useRef, useState } from "react";
 
 import { AppBar } from "@/app/_components/app-bar";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetFooter,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet";
+  Drawer,
+  DrawerContent,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+} from "@/components/ui/drawer";
+import { Input } from "@/components/ui/input";
 import { createId, sortSteps } from "@/lib/routine-utils";
 import type { Routine, RoutineStep } from "@/types";
 
@@ -200,16 +200,15 @@ export function RoutineEdit({
           {t("done")}
         </Button>
       </div>
-      <Sheet open={deleteOpen} onOpenChange={setDeleteOpen}>
-        <SheetContent
-          side="bottom"
-          className="rounded-t-lg pb-[calc(16px+env(safe-area-inset-bottom))]"
-        >
-          <SheetHeader>
-            <SheetTitle>{t("deleteRoutineTitle")}</SheetTitle>
-            <SheetDescription>{t("deleteRoutineDescription")}</SheetDescription>
-          </SheetHeader>
-          <SheetFooter>
+      <Drawer showSwipeHandle open={deleteOpen} onOpenChange={setDeleteOpen}>
+        <DrawerContent>
+          <DrawerHeader className="group-data-[swipe-axis=y]/drawer-popup:text-left">
+            <DrawerTitle>{t("deleteRoutineTitle")}</DrawerTitle>
+            <DrawerDescription>
+              {t("deleteRoutineDescription")}
+            </DrawerDescription>
+          </DrawerHeader>
+          <DrawerFooter className="pb-[calc(16px+env(safe-area-inset-bottom))]">
             <Button
               className="min-h-12.5 text-base"
               variant="outline"
@@ -224,9 +223,9 @@ export function RoutineEdit({
             >
               {t("deleteRoutine")}
             </Button>
-          </SheetFooter>
-        </SheetContent>
-      </Sheet>
+          </DrawerFooter>
+        </DrawerContent>
+      </Drawer>
     </div>
   );
 }

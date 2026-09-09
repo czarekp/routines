@@ -67,6 +67,12 @@ network calls — everything lives in the browser.
   `@base-ui/react` — primitives live in `src/components/ui`. Tailwind v4 (via
   `@tailwindcss/postcss`) with design tokens in `src/app/globals.css`; icons from
   `lucide-react`. Step reordering uses `@dnd-kit`.
+  Every bottom sheet is `src/components/ui/drawer.tsx` (Base UI `Drawer`) with
+  `showSwipeHandle`, so each one has a grab pill and can be swiped down to
+  dismiss. Base UI stacks nested drawers — opening a confirmation from the
+  settings drawer shrinks and scales the parent behind it, which is intended.
+  The drawer reacts to touch gestures, so e2e swipes need CDP
+  `Input.dispatchTouchEvent`; synthetic mouse drags do not dismiss it.
 
 ## Product context
 
