@@ -121,10 +121,6 @@ function withOrderedRoutines(routines: Routine[]): Routine[] {
     .sort((left, right) => left.order - right.order);
 }
 
-export function getRoutines(): Routine[] {
-  return withOrderedRoutines(normalizeState(readData()).routines);
-}
-
 /** Reads the stored blob as-is, without applying the daily reset. */
 export function getRawData(): AppData {
   return readData();
@@ -137,10 +133,6 @@ export function replaceAllData(data: AppData): void {
     state: data.state,
   });
   emitChange();
-}
-
-export function getState(): RoutineState {
-  return normalizeState(readData()).state;
 }
 
 export function saveRoutine(routine: Routine): void {

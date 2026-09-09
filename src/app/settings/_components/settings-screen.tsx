@@ -9,7 +9,6 @@ import {
   useSyncExternalStore,
 } from "react";
 
-import { AppBar } from "@/app/_components/app-bar";
 import { useI18n } from "@/components/i18n-provider";
 import { Button } from "@/components/ui/button";
 import {
@@ -409,17 +408,6 @@ export function SettingsPanel() {
         confirmLabel={t("resetSettingsAction")}
         onConfirm={confirmResetSettings}
       />
-    </div>
-  );
-}
-
-export function SettingsScreen({ onBack }: { onBack: () => void }) {
-  const t = useTranslations();
-
-  return (
-    <div className="mx-auto min-h-dvh w-[min(100%,480px)] px-5 pt-5 pb-10">
-      <AppBar title={t("settings")} onBack={onBack} />
-      <SettingsPanel />
     </div>
   );
 }

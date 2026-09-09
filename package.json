@@ -10,6 +10,7 @@
     "lint:fix": "eslint \"**/*.{ts,tsx,js,jsx}\" --fix",
     "format:check": "prettier --check .",
     "format": "prettier --write .",
+    "pretypecheck": "next typegen",
     "typecheck": "tsc --noEmit",
     "validate": "npm run lint && npm run format:check && npm run typecheck && npm run build && npm audit",
     "validate:fix": "npm run lint:fix && npm run format && npm audit fix"
