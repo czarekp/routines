@@ -42,6 +42,8 @@ network calls — everything lives in the browser.
   reading, not a scheduled job. Every accessor is SSR-guarded
   (`typeof window === "undefined"` returns empty data), so first render is empty
   and real data appears after mount. Types are in `src/types.ts`.
+  Every localStorage key the app owns is declared in `src/lib/storage-keys.ts`
+  — add new ones there so backup and reset stay in step.
 
 - **Routing pattern.** `src/app/**/page.tsx` files are thin server wrappers; the
   real screens are the `*Route` client components in
@@ -59,14 +61,41 @@ network calls — everything lives in the browser.
   pl/en toggle (`useI18n`). Message catalogs are `messages/pl.json` and
   `messages/en.json` — keep both in sync when adding keys.
 
-- **Mobile gate + PWA.** `src/components/mobile-gate.tsx` renders the app for
-  mobile viewports and a "desktop not supported" message otherwise, and registers
-  the service worker (`public/sw.js`).
+- **Mobile gate + app lock.** `src/components/mobile-gate.tsx` renders the app
+  for mobile viewports and a "desktop not supported" message otherwise, and
+  registers the service worker. Inside it, `src/components/app-lock-gate.tsx`
+  hides the app behind a WebAuthn platform-authenticator prompt when the lock
+  is on. Being unlocked is per-session memory state in `src/lib/app-lock.ts`;
+  enrolling counts as unlocked, or turning the switch on would lock the user
+  out on the spot. The lock is a gate, **not** encryption — there is no
+  backend to verify the assertion and `routines-data` stays readable — so the
+  lock screen always keeps an escape hatch once the authenticator fails or
+  goes missing.
+
+- **Service worker (`public/sw.js`).** Navigations are network-first so a
+  deploy lands on the next launch; content-hashed assets stay cache-first.
+  Bump `CACHE_NAME` when the shell changes. Settings' "Update app"
+  (`src/lib/app-update.ts`) takes a backup, drops every cache, tells a waiting
+  worker to activate, then reloads.
+
+- **Backup + settings.** `src/lib/backup.ts` serialises routines, progress and
+  the language to a versioned JSON file and validates anything imported (the
+  file is user-supplied — unrecognised entries are dropped, not trusted).
+  `src/lib/settings.ts` holds preferences (currently the lock enrolment) in
+  the same external-store shape as `use-store.ts`; `resetPreferences` clears
+  preferences only and callers must reload, since other stores cache their own
+  snapshots.
 
 - **UI stack.** shadcn (`base-nova` style, see `components.json`) built on
   `@base-ui/react` — primitives live in `src/components/ui`. Tailwind v4 (via
   `@tailwindcss/postcss`) with design tokens in `src/app/globals.css`; icons from
   `lucide-react`. Step reordering uses `@dnd-kit`.
+  Every bottom sheet is `src/components/ui/drawer.tsx` (Base UI `Drawer`) with
+  `showSwipeHandle`, so each one has a grab pill and can be swiped down to
+  dismiss. Base UI stacks nested drawers — opening a confirmation from the
+  settings drawer shrinks and scales the parent behind it, which is intended.
+  The drawer reacts to touch gestures, so e2e swipes need CDP
+  `Input.dispatchTouchEvent`; synthetic mouse drags do not dismiss it.
 
 ## Product context
 

@@ -8,6 +8,8 @@ import {
   useSyncExternalStore,
 } from "react";
 
+import { LOCALE_KEY } from "@/lib/storage-keys";
+
 import en from "../../messages/en.json";
 import pl from "../../messages/pl.json";
 
@@ -16,7 +18,6 @@ export type Locale = "pl" | "en";
 const messages = { pl, en };
 
 export const DEFAULT_LOCALE: Locale = "en";
-const LOCALE_STORAGE_KEY = "routines-locale";
 
 function isLocale(value: unknown): value is Locale {
   return value === "pl" || value === "en";
@@ -27,7 +28,7 @@ function readStoredLocale(): Locale {
     return DEFAULT_LOCALE;
   }
   try {
-    const stored = window.localStorage.getItem(LOCALE_STORAGE_KEY);
+    const stored = window.localStorage.getItem(LOCALE_KEY);
     return isLocale(stored) ? stored : DEFAULT_LOCALE;
   } catch {
     return DEFAULT_LOCALE;
@@ -61,7 +62,7 @@ function subscribe(listener: () => void): () => void {
 function setStoredLocale(next: Locale): void {
   localeSnapshot = next;
   try {
-    window.localStorage.setItem(LOCALE_STORAGE_KEY, next);
+    window.localStorage.setItem(LOCALE_KEY, next);
   } catch {
     // Ignore storage failures (private mode, blocked storage) — the choice
     // simply won't persist across reloads.

@@ -7,13 +7,13 @@ import { useState } from "react";
 import { RoutineList } from "@/app/_components/routines-app-list";
 import { Button } from "@/components/ui/button";
 import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetFooter,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet";
+  Drawer,
+  DrawerContent,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+} from "@/components/ui/drawer";
 import { reorderRoutines, resetAll } from "@/lib/storage";
 import { useRoutines, useRoutineState } from "@/lib/use-store";
 
@@ -50,16 +50,17 @@ export function RoutinesApp() {
         onResetAll={() => setResetAllOpen(true)}
         onReorder={reorderRoutines}
       />
-      <Sheet open={resetAllOpen} onOpenChange={setResetAllOpen}>
-        <SheetContent
-          side="bottom"
-          className="rounded-t-lg pb-[calc(16px+env(safe-area-inset-bottom))]"
-        >
-          <SheetHeader>
-            <SheetTitle>{t("resetAllTitle")}</SheetTitle>
-            <SheetDescription>{t("resetAllDescription")}</SheetDescription>
-          </SheetHeader>
-          <SheetFooter>
+      <Drawer
+        showSwipeHandle
+        open={resetAllOpen}
+        onOpenChange={setResetAllOpen}
+      >
+        <DrawerContent>
+          <DrawerHeader className="group-data-[swipe-axis=y]/drawer-popup:text-left">
+            <DrawerTitle>{t("resetAllTitle")}</DrawerTitle>
+            <DrawerDescription>{t("resetAllDescription")}</DrawerDescription>
+          </DrawerHeader>
+          <DrawerFooter className="pb-[calc(16px+env(safe-area-inset-bottom))]">
             <Button
               className="min-h-12.5 text-base"
               variant="outline"
@@ -74,9 +75,9 @@ export function RoutinesApp() {
             >
               {t("reset")}
             </Button>
-          </SheetFooter>
-        </SheetContent>
-      </Sheet>
+          </DrawerFooter>
+        </DrawerContent>
+      </Drawer>
     </>
   );
 }

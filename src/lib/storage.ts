@@ -1,6 +1,5 @@
+import { DATA_KEY } from "@/lib/storage-keys";
 import type { AppData, Routine, RoutineState } from "@/types";
-
-const STORAGE_KEY = "routines-data";
 
 const emptyData: AppData = { routines: [], state: {} };
 
@@ -75,7 +74,7 @@ function readData(): AppData {
   }
 
   try {
-    const stored = window.localStorage.getItem(STORAGE_KEY);
+    const stored = window.localStorage.getItem(DATA_KEY);
     if (!stored) {
       return emptyData;
     }
@@ -92,7 +91,7 @@ function readData(): AppData {
 }
 
 function writeData(data: AppData): void {
-  window.localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  window.localStorage.setItem(DATA_KEY, JSON.stringify(data));
 }
 
 function normalizeState(data: AppData): AppData {
@@ -124,6 +123,20 @@ function withOrderedRoutines(routines: Routine[]): Routine[] {
 
 export function getRoutines(): Routine[] {
   return withOrderedRoutines(normalizeState(readData()).routines);
+}
+
+/** Reads the stored blob as-is, without applying the daily reset. */
+export function getRawData(): AppData {
+  return readData();
+}
+
+/** Replaces everything — used by backup import and by "reset all data". */
+export function replaceAllData(data: AppData): void {
+  writeData({
+    routines: withOrderedRoutines(data.routines),
+    state: data.state,
+  });
+  emitChange();
 }
 
 export function getState(): RoutineState {

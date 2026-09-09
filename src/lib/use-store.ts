@@ -3,6 +3,12 @@
 import { useSyncExternalStore } from "react";
 
 import {
+  getServerSettingsSnapshot,
+  getSettingsSnapshot,
+  subscribeToSettings,
+  type AppSettings,
+} from "@/lib/settings";
+import {
   getRoutinesSnapshot,
   getServerRoutinesSnapshot,
   getServerStateSnapshot,
@@ -24,5 +30,13 @@ export function useRoutineState(): RoutineState {
     subscribe,
     getStateSnapshot,
     getServerStateSnapshot,
+  );
+}
+
+export function useAppSettings(): AppSettings {
+  return useSyncExternalStore(
+    subscribeToSettings,
+    getSettingsSnapshot,
+    getServerSettingsSnapshot,
   );
 }
