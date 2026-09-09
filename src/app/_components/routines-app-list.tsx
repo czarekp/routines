@@ -24,11 +24,12 @@ import {
   Settings,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useState } from "react";
+import { startTransition, useEffect, useState } from "react";
 
 import { EmptyState } from "@/app/_components/empty-states";
 import { ProgressRing } from "@/app/_components/progress-ring";
 import { SettingsPanel } from "@/app/settings/_components/settings-screen";
+import { useI18n } from "@/components/i18n-provider";
 import { Button } from "@/components/ui/button";
 import {
   Drawer,
@@ -58,7 +59,21 @@ export function RoutineList({
   onReorder: (orderedIds: string[]) => void;
 }) {
   const t = useTranslations();
+  const { locale } = useI18n();
   const [settingsOpen, setSettingsOpen] = useState(false);
+  // Computed after mount so the static export's build-time HTML never bakes
+  // in a stale date — mirrors the empty-until-mounted pattern storage.ts uses
+  // for localStorage reads. Re-read on remount, same as the daily reset in
+  // storage.ts's normalizeState, rather than ticking live across midnight.
+  const [today, setToday] = useState<Date | null>(null);
+  useEffect(() => startTransition(() => setToday(new Date())), []);
+  const todayLabel = today
+    ? new Intl.DateTimeFormat(locale, {
+        weekday: "long",
+        month: "long",
+        day: "numeric",
+      }).format(today)
+    : null;
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
     useSensor(TouchSensor, {
@@ -77,9 +92,16 @@ export function RoutineList({
   return (
     <div className="mx-auto flex min-h-dvh w-[min(100%,480px)] flex-col px-5 pt-5 pb-[calc(96px+env(safe-area-inset-bottom))]">
       <header className="bg-background sticky top-0 z-10 mb-1 flex h-17 items-center justify-between gap-4 py-2.5">
-        <h1 className="font-heading m-0 text-3xl leading-[1.05] font-bold tracking-tight">
-          {t("appName")}
-        </h1>
+        <div className="min-w-0">
+          <h1 className="font-heading m-0 mb-2 text-3xl leading-[1.05] font-bold tracking-tight">
+            {t("appName")}
+          </h1>
+          {todayLabel && (
+            <p className="text-muted-foreground m-0 overflow-hidden text-sm leading-tight text-ellipsis whitespace-nowrap">
+              {todayLabel}
+            </p>
+          )}
+        </div>
         <Button
           variant="ghost"
           size="icon-lg"
