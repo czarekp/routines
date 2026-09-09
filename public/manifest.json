@@ -5,8 +5,8 @@
   "start_url": "/routines/",
   "scope": "/routines/",
   "display": "standalone",
-  "background_color": "#1c1917",
-  "theme_color": "#1c1917",
+  "background_color": "#000000",
+  "theme_color": "#000000",
   "icons": [
     {
       "src": "/routines/icon.svg",
