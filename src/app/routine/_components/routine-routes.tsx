@@ -6,7 +6,6 @@ import { startTransition, useEffect, useState } from "react";
 
 import { RoutineDetail } from "@/app/routine/_components/routine-detail";
 import { RoutineEdit } from "@/app/routine/_components/routine-edit";
-import { SettingsScreen } from "@/app/settings/_components/settings-screen";
 import { createId } from "@/lib/routine-utils";
 import {
   deleteRoutine,
@@ -16,11 +15,6 @@ import {
 } from "@/lib/storage";
 import { useRoutines, useRoutineState } from "@/lib/use-store";
 import type { Routine } from "@/types";
-
-export function SettingsRoute() {
-  const router = useRouter();
-  return <SettingsScreen onBack={() => router.push("/")} />;
-}
 
 export function NewRoutineRoute() {
   const router = useRouter();
@@ -66,7 +60,7 @@ export function RoutineDetailRoute() {
     ? (routines.find((item) => item.id === routineId) ?? null)
     : null;
 
-  if (!routine) return null;
+  if (!routine) return <MissingRoute />;
   return (
     <RoutineDetail
       routine={routine}
@@ -91,7 +85,7 @@ export function RoutineEditRoute() {
     ? (routines.find((item) => item.id === routineId) ?? null)
     : null;
 
-  if (!routine) return null;
+  if (!routine) return <MissingRoute />;
   return (
     <RoutineEdit
       routine={routine}
