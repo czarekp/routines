@@ -1,0 +1,4 @@
+# Normalize all text files to LF in the repo and on checkout, regardless of
+# the platform's core.autocrlf — keeps Prettier/ESLint from flagging CRLF on
+# Windows checkouts. See memory: windows-eol-prettier.
+* text=auto eol=lf
