@@ -23,13 +23,27 @@ function isLocale(value: unknown): value is Locale {
   return value === "pl" || value === "en";
 }
 
+// First launch only: no stored preference yet, so fall back to the device's
+// language (navigator.language, e.g. "pl-PL") instead of always defaulting to
+// English. Once a value is stored — including this detected one — it always
+// wins; this never overrides a choice the user already made.
+function detectLocale(): Locale {
+  const language = window.navigator?.language ?? "";
+  return language.toLowerCase().startsWith("pl") ? "pl" : DEFAULT_LOCALE;
+}
+
 function readStoredLocale(): Locale {
   if (typeof window === "undefined") {
     return DEFAULT_LOCALE;
   }
   try {
     const stored = window.localStorage.getItem(LOCALE_KEY);
-    return isLocale(stored) ? stored : DEFAULT_LOCALE;
+    if (isLocale(stored)) {
+      return stored;
+    }
+    const detected = detectLocale();
+    window.localStorage.setItem(LOCALE_KEY, detected);
+    return detected;
   } catch {
     return DEFAULT_LOCALE;
   }
