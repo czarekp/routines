@@ -5,6 +5,7 @@ import {
   createContext,
   ReactNode,
   useContext,
+  useEffect,
   useSyncExternalStore,
 } from "react";
 
@@ -99,6 +100,13 @@ export function I18nProvider({ children }: { children: ReactNode }) {
     getLocaleSnapshot,
     getServerLocaleSnapshot,
   );
+
+  // layout.tsx hard-codes <html lang="en"> for the static export; keep it in
+  // sync with the runtime locale after mount so screen readers use the right
+  // pronunciation rules once the user switches to Polish.
+  useEffect(() => {
+    document.documentElement.lang = locale;
+  }, [locale]);
 
   return (
     <LanguageContext.Provider value={{ locale, setLocale: setStoredLocale }}>
