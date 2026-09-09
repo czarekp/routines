@@ -5,8 +5,21 @@ small gaps of a real day — before leaving home, after the gym, in the morning,
 before bed. No accounts, no history, no gamification, no notifications. Just the
 steps you want to keep close, and a checkmark next to each one.
 
-Everything lives in your browser. There is no backend and no network call, so the
-app works offline and keeps your routines to yourself.
+Everything lives in your browser. There is no backend and no account, nothing
+about you is sent anywhere, and the app works offline — the only requests it
+makes are for its own files.
+
+## Design principles
+
+This project — and this stack in general — is guided by a few core goals:
+
+- **Minimalism.** No more than the checklist needs; a calm, uncluttered UI.
+- **Independence.** No accounts, no cloud, no vendor lock-in — your data stays
+  yours and stays on your device.
+- **Smallest possible carbon footprint.** Lightweight and easy on the battery,
+  e.g. true black (`#000000`) backgrounds to save power on OLED screens.
+- **Ease of use.** Simple enough to use without thinking about it.
+- **Accessibility.** Usable by as many people as possible.
 
 ## Features
 
@@ -26,7 +39,7 @@ app works offline and keeps your routines to yourself.
 - **React 19** and **TypeScript**.
 - **Tailwind CSS v4** with design tokens; **shadcn** (`base-nova`) components on
   **@base-ui/react** primitives; icons from **lucide-react**.
-- **@dnd-kit** for step reordering.
+- **@dnd-kit** for step and routine reordering.
 - **next-intl** for translations.
 - State persisted to **`localStorage`** (no database, no API).
 

@@ -18,7 +18,7 @@ export function AppBar({
   const t = useTranslations();
 
   return (
-    <header className="bg-background sticky top-0 z-10 mb-1 flex h-17 items-center justify-between gap-4 py-2.5">
+    <header className="bg-background sticky top-0 z-10 mb-4 flex h-17 items-center justify-between gap-4 py-2.5">
       <Button
         variant="ghost"
         size="icon-lg"
@@ -27,7 +27,7 @@ export function AppBar({
       >
         <ArrowLeft className="size-6" />
       </Button>
-      <h1 className="font-heading m-0 min-w-0 flex-1 overflow-hidden text-xl font-[650] tracking-tight text-ellipsis whitespace-nowrap">
+      <h1 className="font-heading m-0 min-w-0 flex-1 overflow-hidden text-2xl font-[650] tracking-tight text-ellipsis whitespace-nowrap">
         {title}
       </h1>
       {action ?? <span className="w-10" />}
