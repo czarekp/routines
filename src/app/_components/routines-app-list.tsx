@@ -31,11 +31,11 @@ import { ProgressRing } from "@/app/_components/progress-ring";
 import { SettingsPanel } from "@/app/settings/_components/settings-screen";
 import { Button } from "@/components/ui/button";
 import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet";
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+} from "@/components/ui/drawer";
 import type { Routine, RoutineProgress } from "@/types";
 
 const fixedActionShadow = "shadow-[0_8px_22px_oklch(0_0_0_/_28%)]";
@@ -145,17 +145,26 @@ export function RoutineList({
       >
         <Plus className="size-6" />
       </Button>
-      <Sheet open={settingsOpen} onOpenChange={setSettingsOpen}>
-        <SheetContent
-          side="bottom"
-          className="max-h-[min(480px,80dvh)] rounded-t-lg pb-[calc(16px+env(safe-area-inset-bottom))]"
+      <Drawer
+        open={settingsOpen}
+        onOpenChange={setSettingsOpen}
+        showSwipeHandle
+      >
+        <DrawerContent
+          // `--popover` and `--card` are the same colour, so on the default
+          // drawer surface the settings rows would lose their card edges. The
+          // bleed below the drawer has to match, or it shows through on
+          // overscroll.
+          className="bg-background [--drawer-bleed-background:var(--color-background)]"
         >
-          <SheetHeader>
-            <SheetTitle>{t("settings")}</SheetTitle>
-          </SheetHeader>
-          <SettingsPanel />
-        </SheetContent>
-      </Sheet>
+          <DrawerHeader className="group-data-[swipe-axis=y]/drawer-popup:text-left">
+            <DrawerTitle>{t("settings")}</DrawerTitle>
+          </DrawerHeader>
+          <div className="overflow-y-auto px-4 pb-[calc(16px+env(safe-area-inset-bottom))]">
+            <SettingsPanel />
+          </div>
+        </DrawerContent>
+      </Drawer>
     </div>
   );
 }
