@@ -99,7 +99,11 @@
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.708 0 0);
-  --background: oklch(0.145 0 0);
+  /* True black, not a dark gray — an off pixel draws ~0 power on OLED
+     screens, which is most phones this app targets (see CLAUDE.md's Design
+     principles). Elevated surfaces (--card, --popover, --sidebar) stay a step
+     lighter on purpose, for visual separation from this background. */
+  --background: oklch(0 0 0);
   --foreground: oklch(0.985 0 0);
 }
 
