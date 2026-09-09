@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import { NextIntlClientProvider } from "next-intl";
 import { Figtree, Inter } from "next/font/google";
 
+import { AppLockGate } from "@/components/app-lock-gate";
 import { I18nProvider } from "@/components/i18n-provider";
 import { MobileGate } from "@/components/mobile-gate";
 import { cn } from "@/lib/utils";
@@ -42,7 +43,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       <body className="flex min-h-full flex-col">
         <NextIntlClientProvider locale="en" messages={messages}>
           <I18nProvider>
-            <MobileGate>{children}</MobileGate>
+            <MobileGate>
+              <AppLockGate>{children}</AppLockGate>
+            </MobileGate>
           </I18nProvider>
         </NextIntlClientProvider>
       </body>
