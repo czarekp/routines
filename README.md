@@ -5,8 +5,21 @@ small gaps of a real day — before leaving home, after the gym, in the morning,
 before bed. No accounts, no history, no gamification, no notifications. Just the
 steps you want to keep close, and a checkmark next to each one.
 
-Everything lives in your browser. There is no backend and no network call, so the
-app works offline and keeps your routines to yourself.
+Everything lives in your browser. There is no backend and no account, nothing
+about you is sent anywhere, and the app works offline — the only requests it
+makes are for its own files.
+
+## Design principles
+
+This project — and this stack in general — is guided by a few core goals:
+
+- **Minimalism.** No more than the checklist needs; a calm, uncluttered UI.
+- **Independence.** No accounts, no cloud, no vendor lock-in — your data stays
+  yours and stays on your device.
+- **Smallest possible carbon footprint.** Lightweight and easy on the battery,
+  e.g. true black (`#000000`) backgrounds to save power on OLED screens.
+- **Ease of use.** Simple enough to use without thinking about it.
+- **Accessibility.** Usable by as many people as possible.
 
 ## Features
 
@@ -19,6 +32,26 @@ app works offline and keeps your routines to yourself.
 - **English and Polish.** A built-in language toggle (English by default); your
   choice is remembered on the device via `localStorage`.
 - **Reorder routines.** Drag routines on the main list into the order you want.
+- **Export and import.** Save every routine to a JSON file and restore it
+  later — the way to move your data to another device or browser.
+- **Install and update from Settings.** An install button (where the browser
+  offers one) and an update button that clears caches, takes an automatic
+  backup first, and reloads.
+- **App lock.** An optional fingerprint/face prompt before the app opens,
+  using the device's WebAuthn platform authenticator. It is a convenience
+  gate, not encryption — see the note below.
+- **Reset settings.** Puts language and app lock back to their defaults and
+  leaves your routines alone.
+
+### About the app lock
+
+The lock registers a WebAuthn platform credential and asks for it before
+showing your routines. Because there is no backend, nothing verifies the
+assertion and your routines stay readable in `localStorage` — it keeps a
+passer-by out of an unlocked phone, it does not protect the data itself. If
+the authenticator ever stops working (a new phone, cleared browser data,
+re-enrolled biometrics), the lock screen offers a way to turn the lock off so
+you are never shut out of your own checklist.
 
 ## Tech stack
 
@@ -26,7 +59,7 @@ app works offline and keeps your routines to yourself.
 - **React 19** and **TypeScript**.
 - **Tailwind CSS v4** with design tokens; **shadcn** (`base-nova`) components on
   **@base-ui/react** primitives; icons from **lucide-react**.
-- **@dnd-kit** for step reordering.
+- **@dnd-kit** for step and routine reordering.
 - **next-intl** for translations.
 - State persisted to **`localStorage`** (no database, no API).
 
@@ -88,9 +121,21 @@ The app is deployed to **GitHub Pages** as a static site.
   toggle (`src/components/i18n-provider.tsx`) whose choice is persisted to
   `localStorage` (`routines-locale`) and applied after mount. Catalogs are
   `messages/en.json` and `messages/pl.json` — keep both in sync when adding keys.
-- **Mobile gate + PWA.** `src/components/mobile-gate.tsx` renders the app for
-  mobile viewports (and a short "desktop not supported" message otherwise) and
-  registers the service worker (`public/sw.js`).
+- **Mobile gate + app lock.** `src/components/mobile-gate.tsx` renders the app
+  for mobile viewports (and a short "desktop not supported" message otherwise)
+  and registers the service worker. Inside it,
+  `src/components/app-lock-gate.tsx` holds the app behind the WebAuthn prompt
+  while the lock is on; being unlocked is per-session state in
+  `src/lib/app-lock.ts`.
+- **Service worker (`public/sw.js`).** Navigations are network-first, so a new
+  deploy is picked up on the next launch and the cache is the offline fallback;
+  content-hashed assets stay cache-first. Settings' "Update app"
+  (`src/lib/app-update.ts`) snapshots your routines, clears every cache and
+  reloads.
+- **Backup + preferences.** `src/lib/backup.ts` writes and validates the
+  versioned export/import file; `src/lib/settings.ts` stores preferences (the
+  lock enrolment). Every `localStorage` key the app owns is declared in
+  `src/lib/storage-keys.ts`, so backup and reset stay in step.
 
 ## Product
 
