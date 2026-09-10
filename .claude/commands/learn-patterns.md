@@ -2,6 +2,7 @@
 description: Review this session's changes and record recurring good/bad patterns for future sessions
 allowed-tools: Bash(git:*), Read, Edit
 ---
+
 Review: !`git diff --stat HEAD` and !`git log --oneline -10`
 
 Note anything from this session that recurred or stood out: good patterns worth repeating,

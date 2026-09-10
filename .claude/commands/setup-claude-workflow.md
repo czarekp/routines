@@ -23,6 +23,7 @@ typical project of this kind usually looks like. Where you must choose between t
 options, prefer whichever one is closer to what the existing codebase already does.
 
 Two goals apply to everything you produce in this command:
+
 1. **Code quality is enforced deterministically wherever possible** — formatting, linting,
    type-checking and tests belong in hooks and in the `/check` command, not in prose reminders
    that depend on the model remembering to run them.
@@ -53,8 +54,8 @@ If `$ARGUMENTS` contains `--refresh`, treat existing generated files as ones to 
    - name or body matches `lint` → **lint**
    - name or body matches `format|prettier` and (`--check` or `-c` present) → **format:check**
    - name or body matches `format|prettier` → **format**
-   Record the resolved table (role → script name → full command). This table is the single
-   source of truth used in every later phase — never hardcode a script name anywhere else.
+     Record the resolved table (role → script name → full command). This table is the single
+     source of truth used in every later phase — never hardcode a script name anywhere else.
 4. Detect the framework/stack from `dependencies` (react, next, vue, nuxt, svelte, express,
    nestjs, fastify, etc.) and record a one-line stack summary.
 5. Detect tooling by config file presence, not by guessing:
@@ -124,35 +125,41 @@ roughly 100–150 lines — this file is loaded on every session, so it must sta
 
 ```markdown
 <!-- BEGIN AUTO-GENERATED: setup-claude-workflow -->
+
 ## Project Snapshot
+
 - Stack: {one-line framework/stack summary}
 - Package manager: npm
 - Notable dependencies: {short list}
 
 ## Commands
-| Purpose | npm script | Runs automatically via |
-|---|---|---|
-| Format | `npm run {format script}` | PostToolUse hook, per edited file |
-| Lint (fix) | `npm run {lint:fix script}` | PostToolUse hook, per edited file |
-| Typecheck | `npm run {typecheck script}` | Stop hook, summary only |
-| Test | `npm run {test script}` | `/check` |
-| Build | `npm run {build script}` | manual |
-| Dev | `npm run {dev script}` | manual |
 
-*(omit rows for roles that don't exist in this project instead of leaving them blank)*
+| Purpose    | npm script                   | Runs automatically via            |
+| ---------- | ---------------------------- | --------------------------------- |
+| Format     | `npm run {format script}`    | PostToolUse hook, per edited file |
+| Lint (fix) | `npm run {lint:fix script}`  | PostToolUse hook, per edited file |
+| Typecheck  | `npm run {typecheck script}` | Stop hook, summary only           |
+| Test       | `npm run {test script}`      | `/check`                          |
+| Build      | `npm run {build script}`     | manual                            |
+| Dev        | `npm run {dev script}`       | manual                            |
+
+_(omit rows for roles that don't exist in this project instead of leaving them blank)_
 
 ## Conventions
+
 - {naming/structure bullets from Phase 2, 5–10 max}
 - Full pattern log: `.claude/docs/patterns.md` — read by `/find-antipatterns` and
   `/learn-patterns`, not loaded every session.
 
 ## Workflow Rules
+
 - Formatting and lint --fix run automatically after every file edit via hooks — don't manually
   re-run them or narrate that you're about to.
 - Before calling a task done, run `/check`.
 - Prefer `Grep`/`Glob` over reading whole files; read only what a task actually needs.
 - For broad codebase audits, use `/find-antipatterns` instead of reading many files inline.
 - After a non-trivial session, run `/learn-patterns` to record what recurred.
+
 <!-- END AUTO-GENERATED: setup-claude-workflow -->
 ```
 
@@ -189,8 +196,14 @@ const filePath = input?.tool_input?.file_path;
 if (!filePath || !existsSync(filePath)) process.exit(0);
 
 const IGNORE = [
-  /node_modules\//, /(^|\/)dist\//, /(^|\/)build\//, /(^|\/)\.next\//, /(^|\/)coverage\//,
-  /package-lock\.json$/, /yarn\.lock$/, /pnpm-lock\.yaml$/,
+  /node_modules\//,
+  /(^|\/)dist\//,
+  /(^|\/)build\//,
+  /(^|\/)\.next\//,
+  /(^|\/)coverage\//,
+  /package-lock\.json$/,
+  /yarn\.lock$/,
+  /pnpm-lock\.yaml$/,
 ];
 if (IGNORE.some((re) => re.test(filePath))) process.exit(0);
 
@@ -200,10 +213,16 @@ const FORMATTABLE = [...JS_TS, ".json", ".css", ".scss", ".md"];
 
 function run(cmd) {
   try {
-    execSync(cmd, { stdio: "pipe", cwd: process.env.CLAUDE_PROJECT_DIR || process.cwd() });
+    execSync(cmd, {
+      stdio: "pipe",
+      cwd: process.env.CLAUDE_PROJECT_DIR || process.cwd(),
+    });
     return null;
   } catch (e) {
-    return (e.stdout?.toString() || e.message || "").split("\n").slice(0, 3).join("\n");
+    return (e.stdout?.toString() || e.message || "")
+      .split("\n")
+      .slice(0, 3)
+      .join("\n");
   }
 }
 
@@ -220,7 +239,7 @@ if (errors.length) console.log(errors.join("\n"));
 process.exit(0);
 ```
 
-**`.claude/hooks/guard-protected-paths.mjs`** — runs *before* `Edit`/`Write`, blocks direct edits
+**`.claude/hooks/guard-protected-paths.mjs`** — runs _before_ `Edit`/`Write`, blocks direct edits
 to generated/lock files so Claude uses the proper npm command instead:
 
 ```javascript
@@ -237,13 +256,18 @@ function readStdinJSON() {
 
 const filePath = readStdinJSON()?.tool_input?.file_path || "";
 const PROTECTED = [
-  /package-lock\.json$/, /yarn\.lock$/, /pnpm-lock\.yaml$/,
-  /(^|\/)dist\//, /(^|\/)build\//, /(^|\/)\.next\//, /(^|\/)node_modules\//,
+  /package-lock\.json$/,
+  /yarn\.lock$/,
+  /pnpm-lock\.yaml$/,
+  /(^|\/)dist\//,
+  /(^|\/)build\//,
+  /(^|\/)\.next\//,
+  /(^|\/)node_modules\//,
 ];
 if (PROTECTED.some((re) => re.test(filePath))) {
   console.error(
     `Blocked: "${filePath}" is generated or a lockfile. Use the relevant npm command ` +
-    `(npm install, npm run build, ...) instead of editing it directly.`
+      `(npm install, npm run build, ...) instead of editing it directly.`,
   );
   process.exit(2);
 }
@@ -277,7 +301,11 @@ matching script wasn't created above.
       {
         "matcher": "Edit|Write",
         "hooks": [
-          { "type": "command", "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/guard-protected-paths.mjs\"", "timeout": 5 }
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/guard-protected-paths.mjs\"",
+            "timeout": 5
+          }
         ]
       }
     ],
@@ -285,14 +313,22 @@ matching script wasn't created above.
       {
         "matcher": "Edit|Write",
         "hooks": [
-          { "type": "command", "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/post-edit-format.mjs\"", "timeout": 20 }
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/post-edit-format.mjs\"",
+            "timeout": 20
+          }
         ]
       }
     ],
     "Stop": [
       {
         "hooks": [
-          { "type": "command", "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/session-typecheck.sh\"", "timeout": 30 }
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/session-typecheck.sh\"",
+            "timeout": 30
+          }
         ]
       }
     ]
@@ -306,13 +342,16 @@ Create these three files (skip a command if its prerequisite script doesn't exis
 `/check` test step if there's no test script — just omit that step from the body):
 
 **`.claude/commands/check.md`**
+
 ```markdown
 ---
 description: Run the project's full verification suite (format, lint, typecheck, tests) using its actual npm scripts
 allowed-tools: Bash(npm:*), Read
 ---
+
 Run, in order, only the scripts that exist for this project (see CLAUDE.md's Commands table;
 re-resolve from package.json if it seems stale):
+
 1. Format check
 2. Lint
 3. Typecheck
@@ -326,12 +365,14 @@ then re-run only the steps that failed.
 ```
 
 **`.claude/commands/find-antipatterns.md`**
+
 ```markdown
 ---
 description: Scan the codebase for recurring anti-patterns and update the pattern log
 allowed-tools: Read, Glob, Grep, Edit, Write
 argument-hint: [path-or-glob]
 ---
+
 Scope: $ARGUMENTS (default: the main source tree, excluding node_modules/dist/build/coverage).
 Use Grep/Glob only; read full files only when a hit needs context to interpret. Look for the
 categories listed in CLAUDE.md's Conventions section and in `.claude/docs/patterns.md`.
@@ -342,11 +383,13 @@ category and the 5 most severe findings — not the full list.
 ```
 
 **`.claude/commands/learn-patterns.md`**
+
 ```markdown
 ---
 description: Review this session's changes and record recurring good/bad patterns for future sessions
 allowed-tools: Bash(git:*), Read, Edit
 ---
+
 Review: !`git diff --stat` and !`git diff`
 
 Note anything from this session that recurred or stood out: good patterns worth repeating,

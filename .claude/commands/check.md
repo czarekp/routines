@@ -2,7 +2,9 @@
 description: Run the project's full verification suite (format, lint, typecheck, build) using its actual npm scripts
 allowed-tools: Bash(npm:*), Read
 ---
+
 Run, in order (re-resolve from package.json if it seems stale):
+
 1. `npm run format:check`
 2. `npm run lint`
 3. `npm run typecheck`

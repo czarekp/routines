@@ -3,6 +3,7 @@ description: Scan the codebase for recurring anti-patterns and update the patter
 allowed-tools: Read, Glob, Grep, Edit, Write
 argument-hint: [path-or-glob]
 ---
+
 Scope: $ARGUMENTS (default: `src/`, excluding node_modules/.next/out/coverage).
 Use Grep/Glob only; read full files only when a hit needs context to interpret. Look for the
 categories listed in CLAUDE.md's Conventions section and in `.claude/docs/patterns.md`.
