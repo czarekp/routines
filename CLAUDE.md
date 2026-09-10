@@ -115,6 +115,15 @@ The only network traffic is the service worker fetching the app's own files.
   settings drawer shrinks and scales the parent behind it, which is intended.
   The drawer reacts to touch gestures, so e2e swipes need CDP
   `Input.dispatchTouchEvent`; synthetic mouse drags do not dismiss it.
+  Every drawer also closes on the phone's native back button/gesture, the
+  same as its swipe handle or close control. On Android/Chromium this is
+  Base UI's own doing (`CloseWatcher`, gated to the topmost open drawer —
+  see `DrawerRoot.js`); `drawer.tsx` adds a `useHistoryBackDismiss` fallback
+  on top (one `pushState` per open drawer, closed via `popstate`, marker-
+  tagged so nested drawers only close the topmost) to cover iOS and any
+  browser without `CloseWatcher`. Routed screens (routine view/edit, `/new`)
+  need no equivalent — `router.push` already gives them a real history
+  entry, so native back lands wherever the `AppBar` arrow would.
 
 ## Product context
 
