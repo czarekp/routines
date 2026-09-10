@@ -31,12 +31,14 @@ export function NewRoutineView() {
     <RoutineEditForm
       routine={routine}
       title={t("newRoutineTitle")}
-      onBack={() => navigate("/")}
+      onBack={() => startTransition(() => navigate("/"))}
       onSave={saveRoutine}
       onComplete={() =>
-        navigate(`/routine?id=${encodeURIComponent(routine.id)}`)
+        startTransition(() =>
+          navigate(`/routine?id=${encodeURIComponent(routine.id)}`),
+        )
       }
-      onDelete={() => navigate("/")}
+      onDelete={() => startTransition(() => navigate("/"))}
       showDelete={false}
     />
   );
