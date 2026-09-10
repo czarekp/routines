@@ -101,6 +101,18 @@ export function RoutineEdit({
     );
   }
 
+  function mergeStepUp(stepId: string) {
+    const index = steps.findIndex((step) => step.id === stepId);
+    if (index <= 0) return;
+    const previousId = steps[index - 1].id;
+    setSteps((current) =>
+      current
+        .filter((step) => step.id !== stepId)
+        .map((step, position) => ({ ...step, order: position })),
+    );
+    setFocusStepId(previousId);
+  }
+
   function handleDragEnd({ active, over }: DragEndEvent) {
     if (!over || active.id === over.id) return;
     const oldIndex = steps.findIndex((step) => step.id === active.id);
@@ -169,6 +181,7 @@ export function RoutineEdit({
                   onChange={updateStep}
                   onDelete={removeStep}
                   onEnter={addStepAfter}
+                  onMergeUp={mergeStepUp}
                 />
               ))}
             </div>
@@ -240,6 +253,7 @@ function SortableStepRow({
   onChange,
   onDelete,
   onEnter,
+  onMergeUp,
 }: {
   step: RoutineStep;
   placeholder: string;
@@ -250,6 +264,7 @@ function SortableStepRow({
   onChange: (stepId: string, text: string) => void;
   onDelete: (stepId: string) => void;
   onEnter: (stepId: string) => void;
+  onMergeUp: (stepId: string) => void;
 }) {
   const {
     attributes,
@@ -263,7 +278,9 @@ function SortableStepRow({
 
   useEffect(() => {
     if (autoFocus) {
-      inputRef.current?.focus();
+      const input = inputRef.current;
+      input?.focus();
+      input?.setSelectionRange(input.value.length, input.value.length);
     }
   }, [autoFocus]);
 
@@ -298,6 +315,11 @@ function SortableStepRow({
           if (event.key === "Enter") {
             event.preventDefault();
             onEnter(step.id);
+          } else if (
+            (event.key === "Backspace" || event.key === "Delete") &&
+            step.text === ""
+          ) {
+            onMergeUp(step.id);
           }
         }}
         placeholder={placeholder}
