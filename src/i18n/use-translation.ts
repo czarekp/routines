@@ -1,22 +1,17 @@
-"use client";
-
-import { NextIntlClientProvider } from "next-intl";
-import {
-  createContext,
-  ReactNode,
-  useContext,
-  useEffect,
-  useSyncExternalStore,
-} from "react";
+import { useSyncExternalStore } from "react";
 
 import { LOCALE_KEY } from "@/lib/storage-keys";
 
-import en from "../../messages/en.json";
-import pl from "../../messages/pl.json";
+import en from "./en.json";
+import pl from "./pl.json";
 
 export type Locale = "pl" | "en";
+export type MessageKey = keyof typeof en;
 
-const messages = { pl, en };
+const catalogs = { en, pl } satisfies Record<
+  Locale,
+  Record<MessageKey, string>
+>;
 
 export const DEFAULT_LOCALE: Locale = "en";
 
@@ -50,9 +45,9 @@ function readStoredLocale(): Locale {
   }
 }
 
-// Tiny external store (mirrors src/lib/use-store.ts): the server snapshot is the
-// default so the first client render matches the server HTML, and the stored
-// preference is picked up after hydration without a hydration mismatch.
+// Tiny external store: no provider needed, since the store itself is a
+// module-level singleton — every component reads/writes the same locale via
+// useSyncExternalStore.
 const listeners = new Set<() => void>();
 let localeSnapshot: Locale | null = null;
 
@@ -87,40 +82,32 @@ function setStoredLocale(next: Locale): void {
   }
 }
 
-type LanguageContextValue = {
+function format(
+  message: string,
+  params?: Record<string, string | number>,
+): string {
+  if (!params) return message;
+  return message.replace(/\{(\w+)\}/g, (match, token: string) =>
+    token in params ? String(params[token]) : match,
+  );
+}
+
+export type UseTranslationResult = {
   locale: Locale;
   setLocale: (locale: Locale) => void;
+  t: (key: MessageKey, params?: Record<string, string | number>) => string;
 };
 
-const LanguageContext = createContext<LanguageContextValue | null>(null);
-
-export function I18nProvider({ children }: { children: ReactNode }) {
+export function useTranslation(): UseTranslationResult {
   const locale = useSyncExternalStore(
     subscribe,
     getLocaleSnapshot,
     getServerLocaleSnapshot,
   );
 
-  // layout.tsx hard-codes <html lang="en"> for the static export; keep it in
-  // sync with the runtime locale after mount so screen readers use the right
-  // pronunciation rules once the user switches to Polish.
-  useEffect(() => {
-    document.documentElement.lang = locale;
-  }, [locale]);
-
-  return (
-    <LanguageContext.Provider value={{ locale, setLocale: setStoredLocale }}>
-      <NextIntlClientProvider locale={locale} messages={messages[locale]}>
-        {children}
-      </NextIntlClientProvider>
-    </LanguageContext.Provider>
-  );
-}
-
-export function useI18n(): LanguageContextValue {
-  const context = useContext(LanguageContext);
-  if (!context) {
-    throw new Error("useI18n must be used inside I18nProvider");
-  }
-  return context;
+  return {
+    locale,
+    setLocale: setStoredLocale,
+    t: (key, params) => format(catalogs[locale][key], params),
+  };
 }

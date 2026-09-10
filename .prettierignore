@@ -1,6 +1,4 @@
 node_modules
-.next
-out
+dist
 build
 coverage
-public/sw.js

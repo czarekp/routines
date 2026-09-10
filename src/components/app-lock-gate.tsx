@@ -1,9 +1,6 @@
-"use client";
-
 import { Lock } from "lucide-react";
-import { useTranslations } from "next-intl";
 import {
-  ReactNode,
+  type ReactNode,
   useCallback,
   useEffect,
   useState,
@@ -11,6 +8,8 @@ import {
 } from "react";
 
 import { Button } from "@/components/ui/button";
+import { useAppSettings } from "@/hooks/use-store";
+import { useTranslation } from "@/i18n/use-translation";
 import {
   disableAppLock,
   isAppLockSupported,
@@ -19,7 +18,6 @@ import {
   subscribeToUnlock,
   verifyAppLock,
 } from "@/lib/app-lock";
-import { useAppSettings } from "@/lib/use-store";
 
 /**
  * Hides the app behind a platform-authenticator prompt when the lock is on.
@@ -28,7 +26,7 @@ import { useAppSettings } from "@/lib/use-store";
  * This is a gate, not encryption — see the note in `src/lib/app-lock.ts`.
  */
 export function AppLockGate({ children }: { children: ReactNode }) {
-  const t = useTranslations();
+  const { t } = useTranslation();
   const { lock } = useAppSettings();
   const unlocked = useSyncExternalStore(
     subscribeToUnlock,

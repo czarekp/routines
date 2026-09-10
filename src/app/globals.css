@@ -69,6 +69,12 @@
 
 :root {
   color-scheme: dark;
+  /* Self-hosted via @fontsource-variable (see src/main.tsx) — same variable-font
+     files next/font/google served before, just bundled instead of fetched at
+     runtime. Both are true variable fonts, which arbitrary Tailwind weights
+     like `font-[650]` rely on. */
+  --font-sans: "Inter Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-heading: "Figtree Variable", ui-sans-serif, system-ui, sans-serif;
   --card: oklch(0.205 0 0);
   --card-foreground: oklch(0.985 0 0);
   --popover: oklch(0.205 0 0);

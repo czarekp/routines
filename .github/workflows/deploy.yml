@@ -30,14 +30,14 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Cache Next.js build
+      - name: Cache Vite build
         uses: actions/cache@v4
         with:
-          path: ${{ github.workspace }}/.next/cache
+          path: ${{ github.workspace }}/node_modules/.vite
           # Bust the cache when dependencies or source change; otherwise reuse it.
-          key: nextjs-${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}-${{ hashFiles('**/*.[jt]s', '**/*.[jt]sx', '**/*.css') }}
+          key: vite-${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}-${{ hashFiles('**/*.[jt]s', '**/*.[jt]sx', '**/*.css') }}
           restore-keys: |
-            nextjs-${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}-
+            vite-${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}-
 
       - name: Build
         run: npm run build
@@ -50,7 +50,7 @@ jobs:
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: out
+          path: dist
 
   deploy:
     needs: build

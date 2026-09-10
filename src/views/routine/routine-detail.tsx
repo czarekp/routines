@@ -1,13 +1,11 @@
-"use client";
-
 import { Pencil } from "lucide-react";
-import { useTranslations } from "next-intl";
 
-import { AppBar } from "@/app/_components/app-bar";
-import { EmptySteps } from "@/app/_components/empty-states";
-import { ProgressRing } from "@/app/_components/progress-ring";
+import { AppBar } from "@/components/app-bar";
+import { EmptySteps } from "@/components/empty-states";
+import { ProgressRing } from "@/components/progress-ring";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { useTranslation } from "@/i18n/use-translation";
 import { sortSteps } from "@/lib/routine-utils";
 import type { Routine, RoutineProgress } from "@/types";
 
@@ -26,7 +24,7 @@ export function RoutineDetail({
   onToggle: (routineId: string, stepId: string) => void;
   onReset: () => void;
 }) {
-  const t = useTranslations();
+  const { t } = useTranslation();
   const checkedStepIds = progress?.checkedStepIds ?? [];
   const completed = checkedStepIds.filter((id) =>
     routine.steps.some((step) => step.id === id),

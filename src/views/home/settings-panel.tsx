@@ -1,15 +1,11 @@
-"use client";
-
-import { useLocale, useTranslations } from "next-intl";
 import {
-  ReactNode,
   useEffect,
   useRef,
   useState,
   useSyncExternalStore,
+  type ReactNode,
 } from "react";
 
-import { useI18n } from "@/components/i18n-provider";
 import { Button } from "@/components/ui/button";
 import {
   Drawer,
@@ -27,6 +23,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+import { useInstallPrompt } from "@/hooks/use-install-prompt";
+import { useAppSettings } from "@/hooks/use-store";
+import { useTranslation } from "@/i18n/use-translation";
 import {
   disableAppLock,
   enrolAppLock,
@@ -47,8 +46,6 @@ import {
   type Backup,
 } from "@/lib/backup";
 import { resetPreferences } from "@/lib/settings";
-import { useInstallPrompt } from "@/lib/use-install-prompt";
-import { useAppSettings } from "@/lib/use-store";
 
 function SettingsSection({
   title,
@@ -109,7 +106,7 @@ function ConfirmDrawer({
   confirmLabel: string;
   onConfirm: () => void;
 }) {
-  const t = useTranslations();
+  const { t } = useTranslation();
 
   return (
     <Drawer showSwipeHandle open={open} onOpenChange={onOpenChange}>
@@ -140,9 +137,7 @@ function ConfirmDrawer({
 }
 
 export function SettingsPanel() {
-  const t = useTranslations();
-  const language = useLocale() as "pl" | "en";
-  const { setLocale } = useI18n();
+  const { t, locale, setLocale } = useTranslation();
   const settings = useAppSettings();
   const install = useInstallPrompt();
 
@@ -215,10 +210,10 @@ export function SettingsPanel() {
       <SettingsSection title={t("language")}>
         <SettingsRow
           title={t("language")}
-          description={language === "pl" ? "Polski" : "English"}
+          description={locale === "pl" ? "Polski" : "English"}
           action={
             <Select
-              value={language}
+              value={locale}
               onValueChange={(value) => setLocale(value as "pl" | "en")}
             >
               <SelectTrigger

@@ -1,10 +1,6 @@
-"use client";
-
-import { useTranslations } from "next-intl";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useNavigate } from "react-router";
 
-import { RoutineList } from "@/app/_components/routines-app-list";
 import { Button } from "@/components/ui/button";
 import {
   Drawer,
@@ -14,22 +10,24 @@ import {
   DrawerHeader,
   DrawerTitle,
 } from "@/components/ui/drawer";
+import { useRoutines, useRoutineState } from "@/hooks/use-store";
+import { useTranslation } from "@/i18n/use-translation";
 import { reorderRoutines, resetAll } from "@/lib/storage";
-import { useRoutines, useRoutineState } from "@/lib/use-store";
+import { RoutineList } from "@/views/home/routine-list";
 
-export function RoutinesApp() {
-  const router = useRouter();
+export function HomeView() {
+  const navigate = useNavigate();
   const routines = useRoutines();
   const state = useRoutineState();
   const [resetAllOpen, setResetAllOpen] = useState(false);
-  const t = useTranslations();
+  const { t } = useTranslation();
   const hasCheckedSteps = routines.some((routine) => {
     const checkedStepIds = state[routine.id]?.checkedStepIds ?? [];
     return routine.steps.some((step) => checkedStepIds.includes(step.id));
   });
 
   function openNewRoutine() {
-    router.push("/new");
+    navigate("/new");
   }
 
   function handleResetAll() {
@@ -45,7 +43,7 @@ export function RoutinesApp() {
         hasCheckedSteps={hasCheckedSteps}
         onCreate={openNewRoutine}
         onOpen={(routineId) =>
-          router.push(`/routine?id=${encodeURIComponent(routineId)}`)
+          navigate(`/routine?id=${encodeURIComponent(routineId)}`)
         }
         onResetAll={() => setResetAllOpen(true)}
         onReorder={reorderRoutines}

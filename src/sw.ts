@@ -1,9 +1,25 @@
-const CACHE_NAME = "routines-v4";
+/// <reference lib="webworker" />
+
+// Source for the built service worker (public/sw.js under Next.js). vite-plugin-pwa's
+// injectManifest strategy compiles this file and substitutes `self.__WB_MANIFEST`
+// with the list of content-hashed build assets, which we then precache ourselves —
+// everything past that point is unchanged from the previous hand-written worker.
+
+declare const self: ServiceWorkerGlobalScope & {
+  __WB_MANIFEST: Array<{ url: string; revision: string | null } | string>;
+};
+
+const CACHE_NAME = "routines-v5";
 const APP_SHELL = ["/routines/", "/routines/manifest.json"];
+const PRECACHE_URLS = self.__WB_MANIFEST.map((entry) =>
+  typeof entry === "string" ? entry : entry.url,
+);
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(APP_SHELL)),
+    caches
+      .open(CACHE_NAME)
+      .then((cache) => cache.addAll([...APP_SHELL, ...PRECACHE_URLS])),
   );
   self.skipWaiting();
 });
@@ -24,9 +40,9 @@ self.addEventListener("activate", (event) => {
 });
 
 // Navigations go to the network first so a fresh deploy is picked up on the next
-// launch; the cache is only the offline fallback. Everything else (Next.js emits
+// launch; the cache is only the offline fallback. Everything else (Vite emits
 // content-hashed asset URLs) can safely be served cache-first.
-function networkFirst(request) {
+function networkFirst(request: Request): Promise<Response> {
   return fetch(request)
     .then((response) => {
       if (response.ok) {
@@ -38,14 +54,17 @@ function networkFirst(request) {
       }
       return response;
     })
-    .catch(() =>
-      caches
-        .match(request)
-        .then((cached) => cached || caches.match("/routines/")),
+    .catch(
+      () =>
+        caches
+          .match(request)
+          .then(
+            (cached) => cached || caches.match("/routines/"),
+          ) as Promise<Response>,
     );
 }
 
-function cacheFirst(request) {
+function cacheFirst(request: Request): Promise<Response> {
   return caches.match(request).then(
     (cached) =>
       cached ||
