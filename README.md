@@ -58,12 +58,15 @@ you are never shut out of your own checklist.
 
 ## Tech stack
 
-- **Next.js 16** (App Router) with a fully **static export** — no server at runtime.
-- **React 19** and **TypeScript**.
+- **Vite** and **React 19** with **TypeScript**, built as a fully static single-page
+  app — no server at runtime.
+- **React Router** (declarative mode) for client-side routing.
 - **Tailwind CSS v4** with design tokens; **shadcn** (`base-nova`) components on
   **@base-ui/react** primitives; icons from **lucide-react**.
 - **@dnd-kit** for step and routine reordering.
-- **next-intl** for translations.
+- A small custom `useTranslation()` hook (see below) for translations, plus
+  native `Intl` for date formatting.
+- **vite-plugin-pwa** (`injectManifest` strategy) builds the service worker.
 - State persisted to **`localStorage`** (no database, no API).
 
 ## Local development
@@ -76,28 +79,32 @@ npm run dev      # dev server (note the /routines base path, see below)
 Other useful scripts:
 
 ```bash
-npm run build         # static export to out/ (also the deploy build)
+npm run build         # production build to dist/ (also the deploy build)
 npm run lint          # ESLint (Prettier runs as a lint rule, so format slips fail lint)
 npm run format        # Prettier --write
 npm run format:check  # Prettier --check
-npm run typecheck     # tsc --noEmit
+npm run typecheck     # tsc -b (project references, no emit)
 npm run validate      # lint + format:check + typecheck + build + npm audit
 ```
 
 There is no test suite.
 
-## Deployment (static export + `/routines` base path)
+## Deployment (static build + `/routines` base path)
 
 The app is deployed to **GitHub Pages** as a static site.
 
-- `next.config.ts` sets `output: "export"`, so `npm run build` writes a fully
-  static site to `out/` — no server, route handlers, or dynamic SSR at runtime.
-- It also sets `basePath: "/routines"` because the site is served from a project
-  Pages URL (`https://<user>.github.io/routines/`). Every absolute in-app URL
-  (service worker, manifest, icons) includes the `/routines` prefix, and the dev
-  server serves the app under `/routines` too.
+- `vite.config.ts` sets `base: "/routines/"` because the site is served from a
+  project Pages URL (`https://<user>.github.io/routines/`). Every absolute
+  in-app URL (service worker, manifest, icons) is written root-relative in
+  `index.html`/`public/`, and Vite rewrites it with that prefix at build time;
+  the dev server serves the app under `/routines/` too.
+- GitHub Pages has no server-side rewrites, so a hard refresh or deep link into
+  a client-routed path (e.g. `/routines/routine`) would 404 with only a plain
+  SPA. `vite.config.ts` copies the built `index.html` to `dist/404.html` after
+  every build — GitHub Pages falls back to that for any unresolved path, which
+  boots the app and lets React Router take it from there.
 - Deployment is automated in `.github/workflows/deploy.yml`: on push to `main` it
-  builds the static export, uploads it as a Pages artifact, and deploys it. A
+  builds the static site, uploads it as a Pages artifact, and deploys it. A
   separate `.github/workflows/validate.yml` runs lint, format check, and typecheck
   on every push to any branch.
 
@@ -112,27 +119,31 @@ The app is deployed to **GitHub Pages** as a static site.
   truth, persisting one JSON blob under the `routines-data` key. Reads go through
   `normalizeState`, which resets a routine's checked steps whenever its
   `lastResetDate` is not today — the daily reset is a side effect of reading, not
-  a scheduled job. Accessors are SSR-guarded, so first render is empty and real
-  data appears after mount. Types live in `src/types.ts`.
-- **Routing.** `src/app/**/page.tsx` files are thin wrappers; the real screens are
-  the `*Route` client components in
-  `src/app/routine/_components/routine-routes.tsx`. They load the relevant routine
-  from storage and read the target id from the `?id=` search param. Navigation is
-  plain `router.push` between `/`, `/routine?id=`, `/routine/edit?id=`, `/new`, and
-  `/settings`.
-- **i18n.** `next-intl`, rendered in English server-side, plus a client en/pl
-  toggle (`src/components/i18n-provider.tsx`) whose choice is persisted to
-  `localStorage` (`routines-locale`) and applied after mount. Catalogs are
-  `messages/en.json` and `messages/pl.json` — keep both in sync when adding keys.
+  a scheduled job. Accessors are guarded for a non-browser environment, so first
+  render is empty and real data appears after mount. Types live in `src/types.ts`.
+- **Routing.** `src/views/**` holds one folder per screen; `src/app/router.tsx`
+  maps them to routes with React Router, each view lazy-loaded as its own chunk.
+  Views read the target id from the `?id=` search param via `useSearchParams`.
+  Navigation is plain `navigate(...)` between `/`, `/routine?id=`,
+  `/routine/edit?id=`, and `/new`; Settings is a drawer opened from the home
+  view, not a separate route.
+- **i18n.** A small custom hook, `src/i18n/use-translation.ts` — a
+  `useSyncExternalStore`-backed locale store (detects the device language on
+  first launch, then remembers the choice in `localStorage` under
+  `routines-locale`) plus a `t()` function doing `{placeholder}` substitution
+  against the message catalogs. Catalogs are `src/i18n/en.json` and
+  `src/i18n/pl.json` — keep both in sync when adding keys. Dates are formatted
+  with native `Intl.DateTimeFormat`.
 - **Mobile gate + app lock.** `src/components/mobile-gate.tsx` renders the app
   for mobile viewports (and a short "desktop not supported" message otherwise)
-  and registers the service worker. Inside it,
+  and registers the service worker in production builds. Inside it,
   `src/components/app-lock-gate.tsx` holds the app behind the WebAuthn prompt
   while the lock is on; being unlocked is per-session state in
   `src/lib/app-lock.ts`.
-- **Service worker (`public/sw.js`).** Navigations are network-first, so a new
-  deploy is picked up on the next launch and the cache is the offline fallback;
-  content-hashed assets stay cache-first. Settings' "Update app"
+- **Service worker (`src/sw.ts`, built by vite-plugin-pwa).** Navigations are
+  network-first, so a new deploy is picked up on the next launch and the cache
+  is the offline fallback; content-hashed assets stay cache-first, precached at
+  install time from the manifest vite-plugin-pwa injects. Settings' "Update app"
   (`src/lib/app-update.ts`) snapshots your routines, clears every cache and
   reloads.
 - **Backup + preferences.** `src/lib/backup.ts` writes and validates the

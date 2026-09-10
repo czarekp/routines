@@ -13,9 +13,10 @@
 # testing
 /coverage
 
-# next.js
-/.next/
-/out/
+# vite
+/dist
+dist-ssr
+*.local
 
 # production
 /build
@@ -38,7 +39,6 @@ yarn-error.log*
 
 # typescript
 *.tsbuildinfo
-next-env.d.ts
 
 # Claude Code local state — most of .claude/ is local-only (pattern log,
 # dev-server launch config, task notes). The shared workflow (hooks,

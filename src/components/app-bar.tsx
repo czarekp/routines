@@ -1,10 +1,8 @@
-"use client";
-
 import { ArrowLeft } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { type ReactNode } from "react";
 
 import { Button } from "@/components/ui/button";
-import { ReactNode } from "react";
+import { useTranslation } from "@/i18n/use-translation";
 
 export function AppBar({
   title,
@@ -15,7 +13,7 @@ export function AppBar({
   onBack: () => void;
   action?: ReactNode;
 }) {
-  const t = useTranslations();
+  const { t } = useTranslation();
 
   return (
     <header className="bg-background sticky top-0 z-10 mb-4 flex h-17 items-center justify-between gap-4 py-2.5">

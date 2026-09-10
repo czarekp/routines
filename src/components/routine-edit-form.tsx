@@ -1,5 +1,3 @@
-"use client";
-
 import {
   closestCenter,
   DndContext,
@@ -17,10 +15,9 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { GripVertical, Plus, Trash2 } from "lucide-react";
-import { useTranslations } from "next-intl";
-import { ChangeEvent, useEffect, useRef, useState } from "react";
+import { type ChangeEvent, useEffect, useRef, useState } from "react";
 
-import { AppBar } from "@/app/_components/app-bar";
+import { AppBar } from "@/components/app-bar";
 import { Button } from "@/components/ui/button";
 import {
   Drawer,
@@ -31,12 +28,15 @@ import {
   DrawerTitle,
 } from "@/components/ui/drawer";
 import { Input } from "@/components/ui/input";
+import { useTranslation } from "@/i18n/use-translation";
 import { createId, sortSteps } from "@/lib/routine-utils";
 import type { Routine, RoutineStep } from "@/types";
 
 const editStepButtonClass = "size-10.5 flex-none [&>svg]:size-5";
 
-export function RoutineEdit({
+// Shared by the "/new" and "/routine/edit" views — the only difference between
+// creating and editing a routine is what happens on save/back/delete.
+export function RoutineEditForm({
   routine,
   title,
   onBack,
@@ -53,7 +53,7 @@ export function RoutineEdit({
   onComplete?: () => void;
   showDelete?: boolean;
 }) {
-  const t = useTranslations();
+  const { t } = useTranslation();
   const [name, setName] = useState(routine.name);
   const [steps, setSteps] = useState(sortSteps(routine.steps));
   const [deleteOpen, setDeleteOpen] = useState(false);

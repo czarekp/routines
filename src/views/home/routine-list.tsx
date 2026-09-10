@@ -1,5 +1,3 @@
-"use client";
-
 import {
   closestCenter,
   DndContext,
@@ -23,13 +21,10 @@ import {
   RotateCcw,
   Settings,
 } from "lucide-react";
-import { useTranslations } from "next-intl";
 import { startTransition, useEffect, useState } from "react";
 
-import { EmptyState } from "@/app/_components/empty-states";
-import { ProgressRing } from "@/app/_components/progress-ring";
-import { SettingsPanel } from "@/app/settings/_components/settings-screen";
-import { useI18n } from "@/components/i18n-provider";
+import { EmptyState } from "@/components/empty-states";
+import { ProgressRing } from "@/components/progress-ring";
 import { Button } from "@/components/ui/button";
 import {
   Drawer,
@@ -37,7 +32,9 @@ import {
   DrawerHeader,
   DrawerTitle,
 } from "@/components/ui/drawer";
+import { useTranslation } from "@/i18n/use-translation";
 import type { Routine, RoutineProgress } from "@/types";
+import { SettingsPanel } from "@/views/home/settings-panel";
 
 const fixedActionShadow = "shadow-[0_8px_22px_oklch(0_0_0_/_28%)]";
 
@@ -58,12 +55,11 @@ export function RoutineList({
   onResetAll: () => void;
   onReorder: (orderedIds: string[]) => void;
 }) {
-  const t = useTranslations();
-  const { locale } = useI18n();
+  const { t, locale } = useTranslation();
   const [settingsOpen, setSettingsOpen] = useState(false);
-  // Computed after mount so the static export's build-time HTML never bakes
-  // in a stale date — mirrors the empty-until-mounted pattern storage.ts uses
-  // for localStorage reads. Re-read on remount, same as the daily reset in
+  // Computed after mount so a static export's build-time HTML never bakes in a
+  // stale date — mirrors the empty-until-mounted pattern storage.ts uses for
+  // localStorage reads. Re-read on remount, same as the daily reset in
   // storage.ts's normalizeState, rather than ticking live across midnight.
   const [today, setToday] = useState<Date | null>(null);
   useEffect(() => startTransition(() => setToday(new Date())), []);

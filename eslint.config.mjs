@@ -1,26 +1,49 @@
-import nextVitals from "eslint-config-next/core-web-vitals";
-import nextTs from "eslint-config-next/typescript";
+import js from "@eslint/js";
 import prettier from "eslint-plugin-prettier/recommended";
+import reactHooks from "eslint-plugin-react-hooks";
+import reactRefresh from "eslint-plugin-react-refresh";
 import { defineConfig, globalIgnores } from "eslint/config";
+import globals from "globals";
+import tseslint from "typescript-eslint";
 
 const eslintConfig = defineConfig([
-  ...nextVitals,
-  ...nextTs,
+  js.configs.recommended,
+  tseslint.configs.recommended,
+  reactHooks.configs.flat["recommended-latest"],
+  reactRefresh.configs.vite,
   prettier,
   {
     files: ["**/*.{ts,tsx}"],
+    languageOptions: {
+      globals: globals.browser,
+    },
     rules: {
       "prettier/prettier": "error",
     },
   },
-  // Override default ignores of eslint-config-next.
-  globalIgnores([
-    // Default ignores of eslint-config-next:
-    ".next/**",
-    "out/**",
-    "build/**",
-    "next-env.d.ts",
-  ]),
+  {
+    files: ["src/sw.ts"],
+    languageOptions: {
+      globals: globals.serviceworker,
+    },
+  },
+  {
+    // Node-run scripts: root config files and the Claude Code hook scripts.
+    files: ["**/*.{js,mjs,cjs}"],
+    languageOptions: {
+      globals: globals.node,
+    },
+  },
+  {
+    // Generated shadcn primitives intentionally co-export variant helpers
+    // (e.g. buttonVariants) alongside the component — not a fast-refresh
+    // concern for files that are never edited by hand.
+    files: ["src/components/ui/**"],
+    rules: {
+      "react-refresh/only-export-components": "off",
+    },
+  },
+  globalIgnores(["dist/**", "build/**"]),
 ]);
 
 export default eslintConfig;

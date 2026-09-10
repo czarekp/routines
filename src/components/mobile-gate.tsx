@@ -1,13 +1,14 @@
-"use client";
+import { type ReactNode, useEffect } from "react";
 
-import { useTranslations } from "next-intl";
-import { ReactNode, useEffect } from "react";
+import { useTranslation } from "@/i18n/use-translation";
 
 export function MobileGate({ children }: { children: ReactNode }) {
-  const t = useTranslations();
+  const { t } = useTranslation();
 
   useEffect(() => {
-    if ("serviceWorker" in navigator) {
+    // sw.js is only built in production (see vite.config.ts); registering it
+    // in dev would also fight Vite's own HMR with a caching service worker.
+    if (import.meta.env.PROD && "serviceWorker" in navigator) {
       navigator.serviceWorker
         .register("/routines/sw.js")
         .catch(() => undefined);
