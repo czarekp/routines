@@ -34,6 +34,11 @@ them in mind when writing or reviewing code:
   `src/`, `tsconfig.node.json` for `vite.config.ts`).
 - `npm run validate` — lint + format:check + typecheck + build + `npm audit`; the
   same gates CI runs. `npm run validate:fix` applies the autofixable ones.
+- `npm run build:analyze` — same production build, plus `dist/stats.html`, a
+  `rollup-plugin-visualizer` treemap of what's inside each chunk (opens
+  automatically). Wraps `npm run build` in `cross-env ANALYZE=1` so it works
+  the same in PowerShell and bash; opt-in only — plain `npm run build` never
+  runs it.
 
 There is no test suite.
 

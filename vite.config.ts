@@ -54,8 +54,8 @@ export default defineConfig({
     }),
     spaFallback(),
     // Opt-in bundle breakdown, same "not always on" shape as the old
-    // @next/bundle-analyzer setup: `ANALYZE=1 npm run build` opens a
-    // treemap of dist/assets after the build finishes.
+    // @next/bundle-analyzer setup: `npm run build:analyze` opens a treemap
+    // of dist/assets after the build finishes.
     !!process.env.ANALYZE &&
       visualizer({
         filename: "dist/stats.html",

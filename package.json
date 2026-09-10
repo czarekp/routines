@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "build:analyze": "cross-env ANALYZE=1 npm run build",
     "preview": "vite preview",
     "lint": "eslint",
     "lint:fix": "eslint \"**/*.{ts,tsx,js,jsx}\" --fix",
@@ -39,6 +40,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@vitejs/plugin-react": "^5.0.4",
+    "cross-env": "^10.1.0",
     "eslint": "^9",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.6",
