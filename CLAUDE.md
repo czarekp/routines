@@ -19,9 +19,12 @@ them in mind when writing or reviewing code:
   abstractions, UI complexity, or dependencies.
 - **Independence.** Avoid vendor/cloud lock-in — don't reach for a backend or
   third-party service where a local-first approach works.
-- **Smallest possible carbon footprint.** Keep bundle sizes and components
-  lightweight to reduce battery/resource usage — e.g. prefer true black
-  (`#000000`) backgrounds, which save power on OLED screens.
+- **Smallest possible runtime footprint.** Keep bundle sizes and components
+  lightweight to reduce battery/resource usage on the user's device — e.g.
+  prefer true black (`#000000`) backgrounds, which save power on OLED screens.
+  This is about the shipped app's runtime behavior, not the footprint of
+  building it — the project is developed with Claude Code, which has its own
+  energy cost (see README's "Built with Claude").
 - **Ease of use.** Favor solutions that keep the app simple and predictable
   for the user.
 - **Accessibility.** Keep components accessible — semantic markup,
