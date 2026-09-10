@@ -2,6 +2,7 @@ import { readFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 
 import react from "@vitejs/plugin-react";
+import { visualizer } from "rollup-plugin-visualizer";
 import { defineConfig, type Plugin } from "vite";
 import { VitePWA } from "vite-plugin-pwa";
 
@@ -52,5 +53,15 @@ export default defineConfig({
       },
     }),
     spaFallback(),
+    // Opt-in bundle breakdown, same "not always on" shape as the old
+    // @next/bundle-analyzer setup: `ANALYZE=1 npm run build` opens a
+    // treemap of dist/assets after the build finishes.
+    !!process.env.ANALYZE &&
+      visualizer({
+        filename: "dist/stats.html",
+        open: true,
+        gzipSize: true,
+        brotliSize: true,
+      }),
   ],
 });
