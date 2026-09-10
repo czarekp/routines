@@ -23,11 +23,65 @@ function useDrawer() {
   return context;
 }
 
+let drawerHistoryCounter = 0;
+
+/**
+ * Closes an open, controlled drawer the same way its swipe handle/close
+ * button do when the platform's native back control fires.
+ *
+ * Android's back gesture is already handled by Base UI itself (it wires the
+ * `CloseWatcher` API — see `DrawerRoot`'s effect referencing `platform.os
+ * .android`), but that's Chromium/Android-only. iOS has no equivalent, and
+ * any browser without `CloseWatcher` support falls back to plain history
+ * navigation, which would otherwise leave the page behind the drawer instead
+ * of just closing it. So every open drawer here also pushes one history
+ * entry of its own and closes on `popstate`. Each push carries a unique
+ * marker so nested drawers (settings → a confirmation) only close the
+ * topmost one, matching Base UI's own nesting behavior — and however a
+ * drawer closes (this listener, or the swipe/close controls), the pushed
+ * entry is always consumed via `history.back()` so the stack never grows a
+ * stray entry.
+ */
+function useHistoryBackDismiss(
+  open: boolean | undefined,
+  actionsRef: React.RefObject<DrawerPrimitive.Root.Actions | null>,
+) {
+  React.useEffect(() => {
+    if (!open) {
+      return undefined;
+    }
+
+    const marker = ++drawerHistoryCounter;
+    let consumed = false;
+    window.history.pushState(
+      { ...window.history.state, drawerMarker: marker },
+      "",
+    );
+
+    function handlePopState(event: PopStateEvent) {
+      if (!consumed && event.state?.drawerMarker !== marker) {
+        consumed = true;
+        actionsRef.current?.close();
+      }
+    }
+
+    window.addEventListener("popstate", handlePopState);
+    return () => {
+      window.removeEventListener("popstate", handlePopState);
+      if (!consumed) {
+        consumed = true;
+        window.history.back();
+      }
+    };
+  }, [open, actionsRef]);
+}
+
 function Drawer({
   modal = true,
   showSwipeHandle = false,
   snapPoints,
   swipeDirection = "down",
+  open,
   ...props
 }: DrawerPrimitive.Root.Props & {
   showSwipeHandle?: boolean;
@@ -37,6 +91,11 @@ function Drawer({
     () => ({ hasSnapPoints, modal, showSwipeHandle, swipeDirection }),
     [hasSnapPoints, modal, showSwipeHandle, swipeDirection],
   );
+  // Drives `useHistoryBackDismiss`'s imperative close. No caller passes its
+  // own `actionsRef` today — if one starts to, it'll land in `...props` and
+  // silently win over this one (spread last below), breaking back dismissal.
+  const actionsRef = React.useRef<DrawerPrimitive.Root.Actions>(null);
+  useHistoryBackDismiss(open, actionsRef);
 
   return (
     <DrawerContext.Provider value={contextValue}>
@@ -45,6 +104,8 @@ function Drawer({
         modal={modal}
         snapPoints={snapPoints}
         swipeDirection={swipeDirection}
+        open={open}
+        actionsRef={actionsRef}
         {...props}
       />
     </DrawerContext.Provider>
