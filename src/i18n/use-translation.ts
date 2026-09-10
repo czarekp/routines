@@ -82,12 +82,17 @@ function setStoredLocale(next: Locale): void {
   }
 }
 
+// Hoisted: `t()` calls this on every render of every visible string, so the
+// pattern is compiled once rather than on each call. Safe to share across
+// calls — String.replace resets a global regex's lastIndex before each use.
+const placeholderPattern = /\{(\w+)\}/g;
+
 function format(
   message: string,
   params?: Record<string, string | number>,
 ): string {
   if (!params) return message;
-  return message.replace(/\{(\w+)\}/g, (match, token: string) =>
+  return message.replace(placeholderPattern, (match, token: string) =>
     token in params ? String(params[token]) : match,
   );
 }
