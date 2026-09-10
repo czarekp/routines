@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { startTransition, useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 
 import { Button } from "@/components/ui/button";
@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/drawer";
 import { useRoutines, useRoutineState } from "@/hooks/use-store";
 import { useTranslation } from "@/i18n/use-translation";
+import { prefetchRouteChunks } from "@/lib/prefetch-routes";
 import { reorderRoutines, resetAll } from "@/lib/storage";
 import { RoutineList } from "@/views/home/routine-list";
 
@@ -26,8 +27,13 @@ export function HomeView() {
     return routine.steps.some((step) => checkedStepIds.includes(step.id));
   });
 
+  // The home view is where every session starts, so "the user is looking at
+  // their routine list" is a strong signal they're about to open one — warm
+  // the other route chunks once this screen has had its own idle time.
+  useEffect(() => prefetchRouteChunks(), []);
+
   function openNewRoutine() {
-    navigate("/new");
+    startTransition(() => navigate("/new"));
   }
 
   function handleResetAll() {
@@ -43,7 +49,9 @@ export function HomeView() {
         hasCheckedSteps={hasCheckedSteps}
         onCreate={openNewRoutine}
         onOpen={(routineId) =>
-          navigate(`/routine?id=${encodeURIComponent(routineId)}`)
+          startTransition(() =>
+            navigate(`/routine?id=${encodeURIComponent(routineId)}`),
+          )
         }
         onResetAll={() => setResetAllOpen(true)}
         onReorder={reorderRoutines}

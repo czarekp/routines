@@ -1,3 +1,4 @@
+import { startTransition } from "react";
 import { useNavigate, useSearchParams } from "react-router";
 
 import { MissingRoutine } from "@/components/missing-routine";
@@ -20,9 +21,11 @@ export function RoutineView() {
     <RoutineDetail
       routine={routine}
       progress={state[routine.id]}
-      onBack={() => navigate("/")}
+      onBack={() => startTransition(() => navigate("/"))}
       onEdit={() =>
-        navigate(`/routine/edit?id=${encodeURIComponent(routine.id)}`)
+        startTransition(() =>
+          navigate(`/routine/edit?id=${encodeURIComponent(routine.id)}`),
+        )
       }
       onToggle={(_, stepId) => toggleStep(routine.id, stepId)}
       onReset={() => resetRoutine(routine.id)}
