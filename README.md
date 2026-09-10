@@ -16,8 +16,11 @@ This project — and this stack in general — is guided by a few core goals:
 - **Minimalism.** No more than the checklist needs; a calm, uncluttered UI.
 - **Independence.** No accounts, no cloud, no vendor lock-in — your data stays
   yours and stays on your device.
-- **Smallest possible carbon footprint.** Lightweight and easy on the battery,
-  e.g. true black (`#000000`) backgrounds to save power on OLED screens.
+- **Smallest possible runtime footprint.** Lightweight and easy on the battery
+  once it's on your device, e.g. true black (`#000000`) backgrounds to save
+  power on OLED screens. This is about how the app behaves after it's built —
+  not a claim about the footprint of building it, which uses Claude Code like
+  the rest of the project (see "Built with Claude" below).
 - **Ease of use.** Simple enough to use without thinking about it.
 - **Accessibility.** Usable by as many people as possible.
 
@@ -147,3 +150,5 @@ Keep the UI minimalistic — the accent is a clean, neutral white on dark surfac
 This project is developed with [Claude Code](https://claude.com/claude-code),
 Anthropic's agentic coding tool. Features and refactors are implemented in
 pair-programming sessions with Claude, then reviewed and committed by a human.
+The runtime footprint goal above is about the shipped app, not this process —
+building with Claude has its own energy cost, separate from the app's.

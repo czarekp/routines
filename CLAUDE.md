@@ -19,9 +19,12 @@ them in mind when writing or reviewing code:
   abstractions, UI complexity, or dependencies.
 - **Independence.** Avoid vendor/cloud lock-in — don't reach for a backend or
   third-party service where a local-first approach works.
-- **Smallest possible carbon footprint.** Keep bundle sizes and components
-  lightweight to reduce battery/resource usage — e.g. prefer true black
-  (`#000000`) backgrounds, which save power on OLED screens.
+- **Smallest possible runtime footprint.** Keep bundle sizes and components
+  lightweight to reduce battery/resource usage on the user's device — e.g.
+  prefer true black (`#000000`) backgrounds, which save power on OLED screens.
+  This is about the shipped app's runtime behavior, not the footprint of
+  building it — the project is developed with Claude Code, which has its own
+  energy cost (see README's "Built with Claude").
 - **Ease of use.** Favor solutions that keep the app simple and predictable
   for the user.
 - **Accessibility.** Keep components accessible — semantic markup,
@@ -122,3 +125,38 @@ See `PRODUCT.md` for the design intent: a calm, quiet checklist — no history,
 gamification, or notifications. Keep the UI restrained: the accent is a neutral
 **white** on dark surfaces. The earlier coral accent was removed deliberately —
 do not reintroduce it.
+
+<!-- BEGIN AUTO-GENERATED: setup-claude-workflow -->
+
+## Automation
+
+| Purpose    | npm script          | Runs automatically via            |
+| ---------- | ------------------- | --------------------------------- |
+| Format     | `npm run format`    | PostToolUse hook, per edited file |
+| Lint (fix) | `npm run lint:fix`  | PostToolUse hook, per edited file |
+| Typecheck  | `npm run typecheck` | Stop hook, summary only           |
+
+No test script exists — `/check` runs format:check, lint, typecheck, build only.
+
+## Conventions
+
+- Filenames: kebab-case everywhere, including components (not PascalCase).
+- Named exports throughout; `export default` only where Next.js requires it
+  (`page.tsx`, `layout.tsx`, `i18n/request.ts`).
+- Hooks (`use*`) live in `src/lib`, not a dedicated `hooks/` folder.
+- Route-level UI lives in colocated `_components/` folders; `src/components/`
+  is for cross-route UI only (gates, providers, `ui/` primitives).
+- Full pattern log: `.claude/docs/patterns.md` — read by `/find-antipatterns`
+  and `/learn-patterns`, not loaded every session.
+
+## Workflow Rules
+
+- Formatting and lint --fix run automatically after every file edit via
+  hooks — don't manually re-run them or narrate that you're about to.
+- Before calling a task done, run `/check`.
+- Prefer `Grep`/`Glob` over reading whole files; read only what a task needs.
+- For broad codebase audits, use `/find-antipatterns` instead of reading many
+  files inline.
+- After a non-trivial session, run `/learn-patterns` to record what recurred.
+
+<!-- END AUTO-GENERATED: setup-claude-workflow -->

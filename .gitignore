@@ -40,5 +40,10 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# Claude Code local state (settings, task notes) — not shared, never tracked
-/.claude/
+# Claude Code local state — most of .claude/ is local-only (pattern log,
+# dev-server launch config, task notes). The shared workflow (hooks,
+# commands, hook wiring) is tracked so it ships with the repo as a blueprint.
+/.claude/*
+!/.claude/hooks/
+!/.claude/commands/
+!/.claude/settings.json
