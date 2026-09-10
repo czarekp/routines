@@ -85,6 +85,7 @@ npm run format        # Prettier --write
 npm run format:check  # Prettier --check
 npm run typecheck     # tsc -b (project references, no emit)
 npm run validate      # lint + format:check + typecheck + build + npm audit
+npm run build:analyze  # production build + a dist/stats.html bundle treemap
 ```
 
 There is no test suite.
