@@ -41,6 +41,27 @@ export function parseRoutine(value: unknown, index: number): Routine | null {
   };
 }
 
+export function parseState(value: unknown): RoutineState {
+  if (!isRecord(value)) return {};
+  const state: RoutineState = {};
+
+  for (const [routineId, progress] of Object.entries(value)) {
+    if (!isRecord(progress)) continue;
+    if (typeof progress.lastResetDate !== "string") continue;
+    const checked = Array.isArray(progress.checkedStepIds)
+      ? progress.checkedStepIds.filter(
+          (id): id is string => typeof id === "string",
+        )
+      : [];
+    state[routineId] = {
+      checkedStepIds: checked,
+      lastResetDate: progress.lastResetDate,
+    };
+  }
+
+  return state;
+}
+
 // --- Central store -----------------------------------------------------------
 // localStorage is the single source of truth, but React screens need to react to
 // mutations that happen on other screens (e.g. checking a step in the detail view
@@ -123,8 +144,7 @@ function readData(): AppData {
       routines: rawRoutines
         .map(parseRoutine)
         .filter((routine): routine is Routine => routine !== null),
-      state:
-        parsed.state && typeof parsed.state === "object" ? parsed.state : {},
+      state: parseState(parsed.state),
     };
   } catch {
     return emptyData;

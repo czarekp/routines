@@ -3,10 +3,11 @@ import {
   getRawData,
   isRecord,
   parseRoutine,
+  parseState,
   replaceAllData,
 } from "@/lib/storage";
 import { LOCALE_KEY } from "@/lib/storage-keys";
-import type { AppData, Routine, RoutineState } from "@/types";
+import type { AppData, Routine } from "@/types";
 
 export const BACKUP_VERSION = 1;
 
@@ -19,27 +20,6 @@ export type Backup = {
 };
 
 export class BackupError extends Error {}
-
-function parseState(value: unknown): RoutineState {
-  if (!isRecord(value)) return {};
-  const state: RoutineState = {};
-
-  for (const [routineId, progress] of Object.entries(value)) {
-    if (!isRecord(progress)) continue;
-    if (typeof progress.lastResetDate !== "string") continue;
-    const checked = Array.isArray(progress.checkedStepIds)
-      ? progress.checkedStepIds.filter(
-          (id): id is string => typeof id === "string",
-        )
-      : [];
-    state[routineId] = {
-      checkedStepIds: checked,
-      lastResetDate: progress.lastResetDate,
-    };
-  }
-
-  return state;
-}
 
 /** Snapshots everything worth keeping, ready to be serialised to a file. */
 export function createBackup(): Backup {
