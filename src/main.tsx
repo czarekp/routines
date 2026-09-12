@@ -1,6 +1,5 @@
 import "@/app/globals.css";
-import "@fontsource-variable/figtree";
-import "@fontsource-variable/inter";
+import "@fontsource-variable/outfit";
 
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
