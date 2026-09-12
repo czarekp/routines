@@ -9,7 +9,7 @@ declare const self: ServiceWorkerGlobalScope & {
   __WB_MANIFEST: Array<{ url: string; revision: string | null } | string>;
 };
 
-const CACHE_NAME = "routines-v5";
+const CACHE_NAME = "routines-v6";
 const APP_SHELL = ["/routines/", "/routines/manifest.json"];
 const PRECACHE_URLS = self.__WB_MANIFEST.map((entry) =>
   typeof entry === "string" ? entry : entry.url,
@@ -21,7 +21,11 @@ self.addEventListener("install", (event) => {
       .open(CACHE_NAME)
       .then((cache) => cache.addAll([...APP_SHELL, ...PRECACHE_URLS])),
   );
-  self.skipWaiting();
+  // Deliberately no self.skipWaiting() here: a new worker installed while the
+  // app is open in a tab must stay in the "waiting" state so that tab keeps
+  // using its own already-loaded chunks. It only takes over once the app
+  // sends SKIP_WAITING below, which Settings' "Update app" does after
+  // warning the user and taking a backup — see src/lib/app-update.ts.
 });
 
 self.addEventListener("activate", (event) => {
@@ -36,6 +40,10 @@ self.addEventListener("activate", (event) => {
         ),
       ),
   );
+  // Safe now that skipWaiting is gated above: activate only runs once this
+  // worker has actually won (the user triggered SKIP_WAITING, or no tab was
+  // still using the previous worker), so claiming clients here doesn't yank
+  // control out from under a tab that's mid-session on old chunks.
   self.clients.claim();
 });
 

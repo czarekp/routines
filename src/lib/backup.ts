@@ -1,3 +1,4 @@
+import { isLocale, setStoredLocale } from "@/lib/locale-store";
 import { getRawData, replaceAllData } from "@/lib/storage";
 import { LOCALE_KEY } from "@/lib/storage-keys";
 import type { AppData, Routine, RoutineState, RoutineStep } from "@/types";
@@ -126,12 +127,11 @@ export function parseBackup(text: string): Backup {
 /** Overwrites the current routines with the backup's. */
 export function applyBackup(backup: Backup): void {
   replaceAllData(backup.data);
-  if (backup.locale === "pl" || backup.locale === "en") {
-    try {
-      window.localStorage.setItem(LOCALE_KEY, backup.locale);
-    } catch {
-      // The routines still imported; only the language preference is lost.
-    }
+  if (isLocale(backup.locale)) {
+    // Goes through the locale store (not a direct localStorage write) so its
+    // cached snapshot and listeners update in the same tick — otherwise the
+    // UI keeps showing the old language until a manual reload.
+    setStoredLocale(backup.locale);
   }
 }
 

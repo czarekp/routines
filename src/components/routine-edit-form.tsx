@@ -129,11 +129,13 @@ export function RoutineEditForm({
     onSave({
       ...routine,
       name: name.trim(),
-      steps: steps.map((step, index) => ({
-        ...step,
-        text: step.text.trim(),
-        order: index,
-      })),
+      steps: steps
+        .filter((step) => step.text.trim().length > 0)
+        .map((step, index) => ({
+          ...step,
+          text: step.text.trim(),
+          order: index,
+        })),
     });
     (onComplete ?? onBack)();
   }
