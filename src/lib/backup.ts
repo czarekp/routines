@@ -1,7 +1,12 @@
 import { isLocale, setStoredLocale } from "@/lib/locale-store";
-import { getRawData, replaceAllData } from "@/lib/storage";
+import {
+  getRawData,
+  isRecord,
+  parseRoutine,
+  replaceAllData,
+} from "@/lib/storage";
 import { LOCALE_KEY } from "@/lib/storage-keys";
-import type { AppData, Routine, RoutineState, RoutineStep } from "@/types";
+import type { AppData, Routine, RoutineState } from "@/types";
 
 export const BACKUP_VERSION = 1;
 
@@ -14,38 +19,6 @@ export type Backup = {
 };
 
 export class BackupError extends Error {}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
-}
-
-function parseStep(value: unknown, index: number): RoutineStep | null {
-  if (!isRecord(value)) return null;
-  if (typeof value.id !== "string" || typeof value.text !== "string") {
-    return null;
-  }
-  return {
-    id: value.id,
-    text: value.text,
-    order: typeof value.order === "number" ? value.order : index,
-  };
-}
-
-function parseRoutine(value: unknown, index: number): Routine | null {
-  if (!isRecord(value)) return null;
-  if (typeof value.id !== "string" || typeof value.name !== "string") {
-    return null;
-  }
-  const rawSteps = Array.isArray(value.steps) ? value.steps : [];
-  return {
-    id: value.id,
-    name: value.name,
-    order: typeof value.order === "number" ? value.order : index,
-    steps: rawSteps
-      .map(parseStep)
-      .filter((step): step is RoutineStep => step !== null),
-  };
-}
 
 function parseState(value: unknown): RoutineState {
   if (!isRecord(value)) return {};
