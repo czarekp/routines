@@ -200,5 +200,17 @@ No test script exists — `/check` runs format:check, lint, typecheck, build onl
 - For broad codebase audits, use `/find-antipatterns` instead of reading many
   files inline.
 - After a non-trivial session, run `/learn-patterns` to record what recurred.
+- Check the current branch before editing or committing anything — never
+  edit or commit directly on `main`, including doc-only changes. Branch
+  first, always.
+- When a change touches something CLAUDE.md or README.md describes
+  (architecture, stack, file locations), update those docs in the same
+  session rather than leaving them to drift until a later cleanup pass finds
+  them stale.
+- If the dev server throws stale-module/HMR errors (e.g. "does not provide
+  an export named ...") — especially right after a branch switch — restart
+  it before assuming there's a real regression; Vite's module graph can go
+  stale across branch changes and the error is almost always the restart,
+  not the code.
 
 <!-- END AUTO-GENERATED: setup-claude-workflow -->
