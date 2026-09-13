@@ -63,8 +63,10 @@ The only network traffic is the service worker fetching the app's own files.
   `lastResetDate` is not today** — the daily-reset behavior is a side effect of
   reading, not a scheduled job. Every accessor is guarded for a non-browser
   environment (`typeof window === "undefined"` returns empty data), so first
-  render is empty and real data appears after mount. Types are in `src/types.ts`.
-  Every localStorage key the app owns is declared in `src/lib/storage-keys.ts`
+  render is empty and real data appears after mount. Types in `src/types.ts`
+  are inferred from the Valibot schemas in `src/lib/schemas.ts` (`v.InferOutput`)
+  rather than hand-written in parallel, so the type and the runtime validator
+  can't drift out of sync. Every localStorage key the app owns is declared in `src/lib/storage-keys.ts`
   — add new ones there so backup and reset stay in step. `lib/` never imports
   from `react`/`react-dom`; React hooks that wrap this state live in `src/hooks/`
   (`use-store.ts`, `use-install-prompt.ts`) instead.
@@ -112,9 +114,13 @@ The only network traffic is the service worker fetching the app's own files.
   cache, tells a waiting worker to activate, then reloads.
 
 - **Backup + settings.** `src/lib/backup.ts` serialises routines, progress and
-  the language to a versioned JSON file and validates anything imported (the
-  file is user-supplied — unrecognised entries are dropped, not trusted).
-  `src/lib/settings.ts` holds preferences (currently the lock enrolment) in
+  the language to a versioned JSON file and validates anything imported through
+  the same schemas `storage.ts`'s `readData` uses (the file is user-supplied —
+  unrecognised entries are dropped, not trusted). `parseRoutines`/`parseState`
+  in `schemas.ts` validate each routine/step/progress entry independently
+  rather than handing a whole array/record to `v.array()`/`v.record()` — one
+  malformed entry is dropped without taking an otherwise-valid import or
+  stored blob down with it. `src/lib/settings.ts` holds preferences (currently the lock enrolment) in
   the same external-store shape as `use-store.ts`; `resetPreferences` clears
   preferences only and callers must reload, since other stores cache their own
   snapshots.
@@ -172,6 +178,15 @@ No test script exists — `/check` runs format:check, lint, typecheck, build onl
   free of `react`/`react-dom` imports.
 - View-level UI lives in `src/views/<name>/`; `src/components/` is for UI
   shared by 2+ views only (gates, `app-bar.tsx`, `ui/` primitives).
+- Validate anything crossing a trust boundary (backup imports, localStorage
+  read-back) with Valibot schemas (`src/lib/schemas.ts`), not hand-rolled
+  `typeof`/`isRecord` checks — schemas are the single source of truth for
+  both runtime validation and the inferred TS types (`v.InferOutput`), and
+  this is the standard validation library across the maat-apps ecosystem, not
+  just this repo (see `.claude/tasks/ecosystem/adopt-valibot-for-validation.md`).
+  Validate array/record entries independently rather than handing a whole
+  array/record to `v.array()`/`v.record()` in one call, so one malformed
+  entry doesn't take an otherwise-valid whole down with it.
 - Full pattern log: `.claude/docs/patterns.md` — read by `/find-antipatterns`
   and `/learn-patterns`, not loaded every session.
 
