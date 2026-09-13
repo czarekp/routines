@@ -1,66 +1,8 @@
+import { parseRoutines, parseState } from "@/lib/schemas";
 import { DATA_KEY } from "@/lib/storage-keys";
-import type { AppData, Routine, RoutineState, RoutineStep } from "@/types";
+import type { AppData, Routine, RoutineState } from "@/types";
 
 const emptyData: AppData = { routines: [], state: {} };
-
-// --- Shape validation ---------------------------------------------------------
-// Shared with backup.ts, which validates a user-supplied import file the same
-// way. Anything unrecognised is dropped rather than trusted — readData applies
-// the same posture to whatever's actually in localStorage, since a malformed
-// entry (a future write bug, or external tampering via devtools) shouldn't
-// crash a screen that assumes well-shaped data.
-export function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
-}
-
-export function parseStep(value: unknown, index: number): RoutineStep | null {
-  if (!isRecord(value)) return null;
-  if (typeof value.id !== "string" || typeof value.text !== "string") {
-    return null;
-  }
-  return {
-    id: value.id,
-    text: value.text,
-    order: typeof value.order === "number" ? value.order : index,
-  };
-}
-
-export function parseRoutine(value: unknown, index: number): Routine | null {
-  if (!isRecord(value)) return null;
-  if (typeof value.id !== "string" || typeof value.name !== "string") {
-    return null;
-  }
-  const rawSteps = Array.isArray(value.steps) ? value.steps : [];
-  return {
-    id: value.id,
-    name: value.name,
-    order: typeof value.order === "number" ? value.order : index,
-    steps: rawSteps
-      .map(parseStep)
-      .filter((step): step is RoutineStep => step !== null),
-  };
-}
-
-export function parseState(value: unknown): RoutineState {
-  if (!isRecord(value)) return {};
-  const state: RoutineState = {};
-
-  for (const [routineId, progress] of Object.entries(value)) {
-    if (!isRecord(progress)) continue;
-    if (typeof progress.lastResetDate !== "string") continue;
-    const checked = Array.isArray(progress.checkedStepIds)
-      ? progress.checkedStepIds.filter(
-          (id): id is string => typeof id === "string",
-        )
-      : [];
-    state[routineId] = {
-      checkedStepIds: checked,
-      lastResetDate: progress.lastResetDate,
-    };
-  }
-
-  return state;
-}
 
 // --- Central store -----------------------------------------------------------
 // localStorage is the single source of truth, but React screens need to react to
@@ -139,11 +81,8 @@ function readData(): AppData {
     }
 
     const parsed = JSON.parse(stored) as Partial<AppData>;
-    const rawRoutines = Array.isArray(parsed.routines) ? parsed.routines : [];
     return {
-      routines: rawRoutines
-        .map(parseRoutine)
-        .filter((routine): routine is Routine => routine !== null),
+      routines: parseRoutines(parsed.routines),
       state: parseState(parsed.state),
     };
   } catch {

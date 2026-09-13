@@ -1,13 +1,8 @@
 import { isLocale, setStoredLocale } from "@/lib/locale-store";
-import {
-  getRawData,
-  isRecord,
-  parseRoutine,
-  parseState,
-  replaceAllData,
-} from "@/lib/storage";
+import { parseRoutines, parseState } from "@/lib/schemas";
+import { getRawData, replaceAllData } from "@/lib/storage";
 import { LOCALE_KEY } from "@/lib/storage-keys";
-import type { AppData, Routine } from "@/types";
+import type { AppData } from "@/types";
 
 export const BACKUP_VERSION = 1;
 
@@ -20,6 +15,13 @@ export type Backup = {
 };
 
 export class BackupError extends Error {}
+
+// Narrows the top-level backup envelope only (app/version/data), so parseBackup
+// can give a distinct message per broken expectation. The routines/state inside
+// data.* are validated separately by the schemas in @/lib/schemas.
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
 
 /** Snapshots everything worth keeping, ready to be serialised to a file. */
 export function createBackup(): Backup {
@@ -61,9 +63,7 @@ export function parseBackup(text: string): Backup {
     throw new BackupError("The backup does not contain any routines.");
   }
 
-  const routines = parsed.data.routines
-    .map(parseRoutine)
-    .filter((routine): routine is Routine => routine !== null);
+  const routines = parseRoutines(parsed.data.routines);
 
   return {
     app: "routines",

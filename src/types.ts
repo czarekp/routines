@@ -1,24 +1,11 @@
-export type RoutineStep = {
-  id: string;
-  text: string;
-  order: number;
-};
-
-export type Routine = {
-  id: string;
-  name: string;
-  order: number;
-  steps: RoutineStep[];
-};
-
-export type RoutineProgress = {
-  checkedStepIds: string[];
-  lastResetDate: string;
-};
-
-export type RoutineState = Record<string, RoutineProgress>;
-
-export type AppData = {
-  routines: Routine[];
-  state: RoutineState;
-};
+// Canonical types for the app's data shapes. The types themselves are inferred
+// from the Valibot schemas in src/lib/schemas.ts (the runtime validators for
+// this same data) — re-exported here so the rest of the app can keep importing
+// from "@/types" without needing to know that schemas.ts is where they're defined.
+export type {
+  AppData,
+  Routine,
+  RoutineProgress,
+  RoutineState,
+  RoutineStep,
+} from "@/lib/schemas";
