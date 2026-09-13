@@ -67,7 +67,8 @@ you are never shut out of your own checklist.
 - A small custom `useTranslation()` hook (see below) for translations, plus
   native `Intl` for date formatting.
 - **vite-plugin-pwa** (`injectManifest` strategy) builds the service worker.
-- State persisted to **`localStorage`** (no database, no API).
+- State persisted to **`localStorage`** (no database, no API), validated with
+  **Valibot** schemas that double as the source of the app's TypeScript types.
 
 ## Local development
 
@@ -121,7 +122,9 @@ The app is deployed to **GitHub Pages** as a static site.
   `normalizeState`, which resets a routine's checked steps whenever its
   `lastResetDate` is not today — the daily reset is a side effect of reading, not
   a scheduled job. Accessors are guarded for a non-browser environment, so first
-  render is empty and real data appears after mount. Types live in `src/types.ts`.
+  render is empty and real data appears after mount. Types in `src/types.ts` are
+  inferred from Valibot schemas (`src/lib/schemas.ts`), the single source of
+  truth for both validation and the TS types.
 - **Routing.** `src/views/**` holds one folder per screen; `src/app/router.tsx`
   maps them to routes with React Router, each view lazy-loaded as its own chunk.
   Views read the target id from the `?id=` search param via `useSearchParams`.
@@ -141,16 +144,18 @@ The app is deployed to **GitHub Pages** as a static site.
   `src/components/app-lock-gate.tsx` holds the app behind the WebAuthn prompt
   while the lock is on; being unlocked is per-session state in
   `src/lib/app-lock.ts`.
-- **Service worker (`src/sw.ts`, built by vite-plugin-pwa).** Navigations are
-  network-first, so a new deploy is picked up on the next launch and the cache
-  is the offline fallback; content-hashed assets stay cache-first, precached at
-  install time from the manifest vite-plugin-pwa injects. Settings' "Update app"
+- **Service worker (`src/sw.ts`, built by vite-plugin-pwa).** Navigations and
+  `manifest.json` are network-first, so a new deploy or a manifest edit is
+  picked up on the next launch and the cache is the offline fallback;
+  content-hashed assets stay cache-first, precached at install time from the
+  manifest vite-plugin-pwa injects. Settings' "Update app"
   (`src/lib/app-update.ts`) snapshots your routines, clears every cache and
   reloads.
-- **Backup + preferences.** `src/lib/backup.ts` writes and validates the
-  versioned export/import file; `src/lib/settings.ts` stores preferences (the
-  lock enrolment). Every `localStorage` key the app owns is declared in
-  `src/lib/storage-keys.ts`, so backup and reset stay in step.
+- **Backup + preferences.** `src/lib/backup.ts` writes and validates (via the
+  same Valibot schemas `storage.ts` uses) the versioned export/import file;
+  `src/lib/settings.ts` stores preferences (the lock enrolment). Every
+  `localStorage` key the app owns is declared in `src/lib/storage-keys.ts`,
+  so backup and reset stay in step.
 
 ## Product
 
