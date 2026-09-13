@@ -117,6 +117,7 @@ export function RoutineEditForm({
     if (!over || active.id === over.id) return;
     const oldIndex = steps.findIndex((step) => step.id === active.id);
     const newIndex = steps.findIndex((step) => step.id === over.id);
+    if (oldIndex === -1 || newIndex === -1) return;
     setSteps(
       arrayMove(steps, oldIndex, newIndex).map((step, index) => ({
         ...step,

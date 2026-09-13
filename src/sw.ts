@@ -9,8 +9,8 @@ declare const self: ServiceWorkerGlobalScope & {
   __WB_MANIFEST: Array<{ url: string; revision: string | null } | string>;
 };
 
-const CACHE_NAME = "routines-v6";
-const APP_SHELL = ["/routines/", "/routines/manifest.json"];
+const CACHE_NAME = "routines-v7";
+const APP_SHELL = ["/routines/"];
 const PRECACHE_URLS = self.__WB_MANIFEST.map((entry) =>
   typeof entry === "string" ? entry : entry.url,
 );
@@ -94,8 +94,13 @@ self.addEventListener("fetch", (event) => {
   if (requestUrl.protocol !== "http:" && requestUrl.protocol !== "https:")
     return;
 
+  // Navigations, and manifest.json, go network-first: manifest.json is small
+  // and — unlike Vite's content-hashed assets — never changes URL when its
+  // content does, so cache-first would serve a stale icon/name/theme-color
+  // indefinitely until an unrelated shell change happened to bump CACHE_NAME.
   event.respondWith(
-    event.request.mode === "navigate"
+    event.request.mode === "navigate" ||
+      requestUrl.pathname === "/routines/manifest.json"
       ? networkFirst(event.request)
       : cacheFirst(event.request),
   );

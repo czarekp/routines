@@ -1,7 +1,8 @@
 import { isLocale, setStoredLocale } from "@/lib/locale-store";
+import { parseRoutines, parseState } from "@/lib/schemas";
 import { getRawData, replaceAllData } from "@/lib/storage";
 import { LOCALE_KEY } from "@/lib/storage-keys";
-import type { AppData, Routine, RoutineState, RoutineStep } from "@/types";
+import type { AppData } from "@/types";
 
 export const BACKUP_VERSION = 1;
 
@@ -15,57 +16,11 @@ export type Backup = {
 
 export class BackupError extends Error {}
 
+// Narrows the top-level backup envelope only (app/version/data), so parseBackup
+// can give a distinct message per broken expectation. The routines/state inside
+// data.* are validated separately by the schemas in @/lib/schemas.
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
-}
-
-function parseStep(value: unknown, index: number): RoutineStep | null {
-  if (!isRecord(value)) return null;
-  if (typeof value.id !== "string" || typeof value.text !== "string") {
-    return null;
-  }
-  return {
-    id: value.id,
-    text: value.text,
-    order: typeof value.order === "number" ? value.order : index,
-  };
-}
-
-function parseRoutine(value: unknown, index: number): Routine | null {
-  if (!isRecord(value)) return null;
-  if (typeof value.id !== "string" || typeof value.name !== "string") {
-    return null;
-  }
-  const rawSteps = Array.isArray(value.steps) ? value.steps : [];
-  return {
-    id: value.id,
-    name: value.name,
-    order: typeof value.order === "number" ? value.order : index,
-    steps: rawSteps
-      .map(parseStep)
-      .filter((step): step is RoutineStep => step !== null),
-  };
-}
-
-function parseState(value: unknown): RoutineState {
-  if (!isRecord(value)) return {};
-  const state: RoutineState = {};
-
-  for (const [routineId, progress] of Object.entries(value)) {
-    if (!isRecord(progress)) continue;
-    if (typeof progress.lastResetDate !== "string") continue;
-    const checked = Array.isArray(progress.checkedStepIds)
-      ? progress.checkedStepIds.filter(
-          (id): id is string => typeof id === "string",
-        )
-      : [];
-    state[routineId] = {
-      checkedStepIds: checked,
-      lastResetDate: progress.lastResetDate,
-    };
-  }
-
-  return state;
 }
 
 /** Snapshots everything worth keeping, ready to be serialised to a file. */
@@ -108,9 +63,7 @@ export function parseBackup(text: string): Backup {
     throw new BackupError("The backup does not contain any routines.");
   }
 
-  const routines = parsed.data.routines
-    .map(parseRoutine)
-    .filter((routine): routine is Routine => routine !== null);
+  const routines = parseRoutines(parsed.data.routines);
 
   return {
     app: "routines",

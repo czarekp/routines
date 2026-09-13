@@ -29,8 +29,15 @@ export function RoutineEditView() {
       }
       onSave={saveRoutine}
       onDelete={() => {
+        // Not wrapped in startTransition like the other navigate() calls here:
+        // deleteRoutine's store update forces a synchronous re-render (see
+        // storage.ts's useSyncExternalStore-backed store), which would win the
+        // race against a transition-deferred navigate and briefly render this
+        // view with its now-deleted routine — showing MissingRoutine instead
+        // of leaving for "/". Keeping this navigate synchronous batches it
+        // together with that update instead.
         deleteRoutine(routine.id);
-        startTransition(() => navigate("/"));
+        navigate("/");
       }}
     />
   );

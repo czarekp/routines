@@ -37,8 +37,13 @@ let drawerHistoryCounter = 0;
  * marker so nested drawers (settings → a confirmation) only close the
  * topmost one, matching Base UI's own nesting behavior — and however a
  * drawer closes (this listener, or the swipe/close controls), the pushed
- * entry is always consumed via `history.back()` so the stack never grows a
- * stray entry.
+ * entry is consumed via `history.back()` so the stack never grows a stray
+ * entry — but only when that entry is still on top: an action inside the
+ * drawer (e.g. a destructive confirm button) can itself navigate elsewhere
+ * before this cleanup runs, pushing its own entry on top of ours. Calling
+ * `history.back()` unconditionally in that case would pop *that* navigation
+ * instead of our marker, silently undoing it and stranding the user back
+ * where the drawer was opened.
  */
 function useHistoryBackDismiss(
   open: boolean | undefined,
@@ -68,7 +73,12 @@ function useHistoryBackDismiss(
       window.removeEventListener("popstate", handlePopState);
       if (!consumed) {
         consumed = true;
-        window.history.back();
+        const current = window.history.state as {
+          drawerMarker?: number;
+        } | null;
+        if (current?.drawerMarker === marker) {
+          window.history.back();
+        }
       }
     };
   }, [open, actionsRef]);
@@ -239,7 +249,7 @@ function DrawerFooter({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="drawer-footer"
-      className={cn("mt-auto flex shrink-0 flex-col gap-2 p-4 pt-0", className)}
+      className={cn("mt-auto flex shrink-0 flex-col gap-2 p-4", className)}
       {...props}
     />
   );

@@ -1,3 +1,4 @@
+import { parseRoutines, parseState } from "@/lib/schemas";
 import { DATA_KEY } from "@/lib/storage-keys";
 import type { AppData, Routine, RoutineState } from "@/types";
 
@@ -81,9 +82,8 @@ function readData(): AppData {
 
     const parsed = JSON.parse(stored) as Partial<AppData>;
     return {
-      routines: Array.isArray(parsed.routines) ? parsed.routines : [],
-      state:
-        parsed.state && typeof parsed.state === "object" ? parsed.state : {},
+      routines: parseRoutines(parsed.routines),
+      state: parseState(parsed.state),
     };
   } catch {
     return emptyData;
