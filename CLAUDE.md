@@ -107,9 +107,10 @@ The only network traffic is the service worker fetching the app's own files.
   `injectManifest` strategy compiles this file and substitutes
   `self.__WB_MANIFEST` with the list of content-hashed build assets, which the
   worker precaches itself at install time — everything past that point
-  (network-first navigations so a deploy lands on the next launch,
-  cache-first for everything else) is the same hand-written logic the old
-  Next.js `public/sw.js` had. Bump `CACHE_NAME` when the shell changes.
+  (network-first for navigations and `manifest.json`, so a deploy or a
+  manifest edit lands on the next launch; cache-first for everything else)
+  is the same hand-written logic the old Next.js `public/sw.js` had. Bump
+  `CACHE_NAME` when the shell changes.
   Settings' "Update app" (`src/lib/app-update.ts`) takes a backup, drops every
   cache, tells a waiting worker to activate, then reloads.
 
@@ -128,11 +129,11 @@ The only network traffic is the service worker fetching the app's own files.
 - **UI stack.** shadcn (`base-nova` style, see `components.json`, `rsc: false`)
   built on `@base-ui/react` — primitives live in `src/components/ui`, generated
   and not hand-edited. Tailwind v4 (via `@tailwindcss/postcss`) with design
-  tokens in `src/app/globals.css`; icons from `lucide-react`. Fonts are
-  self-hosted via `@fontsource-variable/inter` and `@fontsource-variable/figtree`
-  (imported in `src/main.tsx`) rather than fetched from Google Fonts at
-  runtime — same "nothing leaves the device" invariant the old `next/font`
-  setup gave for free. Step reordering uses `@dnd-kit`.
+  tokens in `src/app/globals.css`; icons from `lucide-react`. The font is
+  self-hosted via `@fontsource-variable/outfit` (imported in `src/main.tsx`,
+  used for both `--font-sans` and `--font-heading`) rather than fetched from
+  Google Fonts at runtime — same "nothing leaves the device" invariant the
+  old `next/font` setup gave for free. Step reordering uses `@dnd-kit`.
   Every bottom sheet is `src/components/ui/drawer.tsx` (Base UI `Drawer`) with
   `showSwipeHandle`, so each one has a grab pill and can be swiped down to
   dismiss. Base UI stacks nested drawers — opening a confirmation from the
@@ -199,5 +200,17 @@ No test script exists — `/check` runs format:check, lint, typecheck, build onl
 - For broad codebase audits, use `/find-antipatterns` instead of reading many
   files inline.
 - After a non-trivial session, run `/learn-patterns` to record what recurred.
+- Check the current branch before editing or committing anything — never
+  edit or commit directly on `main`, including doc-only changes. Branch
+  first, always.
+- When a change touches something CLAUDE.md or README.md describes
+  (architecture, stack, file locations), update those docs in the same
+  session rather than leaving them to drift until a later cleanup pass finds
+  them stale.
+- If the dev server throws stale-module/HMR errors (e.g. "does not provide
+  an export named ...") — especially right after a branch switch — restart
+  it before assuming there's a real regression; Vite's module graph can go
+  stale across branch changes and the error is almost always the restart,
+  not the code.
 
 <!-- END AUTO-GENERATED: setup-claude-workflow -->
